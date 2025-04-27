@@ -1,3 +1,6 @@
+import { BiCrown, BiHome, BiLogOut, BiUser } from "react-icons/bi";
+import { FaTools } from "react-icons/fa";
+import { GrProjects } from "react-icons/gr";
 import { NavLink } from "react-router";
 
 const Sidebar = () => {
@@ -63,17 +66,40 @@ const Sidebar = () => {
               <h3 className="font-medium text-lg self-start">Create</h3>
 
               {/* Navigation Links */}
-              <SidebarNavLink to="/" label="Home" />
-              <SidebarNavLink to="/my-projects" label="My Projects" />
-              <SidebarNavLink to="/profile" label="Profile" />
-              <SidebarNavLink to="/ai-apps" label="AI Apps" />
+              <SidebarNavLink to="/" label="Home" icon={<BiHome size={16} />} />
+              <SidebarNavLink
+                to="/my-projects"
+                label="My Projects"
+                icon={<GrProjects size={14} />}
+              />
+              <SidebarNavLink
+                to="/profile"
+                label="Profile"
+                icon={<BiUser size={16} />}
+              />
+              <SidebarNavLink
+                to="/ai-apps"
+                label="AI Apps"
+                icon={<FaTools size={14} />}
+              />
             </div>
 
             {/* Account Links */}
             <div className="flex flex-col items-center gap-2 h-full justify-center lg:justify-end">
               <h3 className="font-medium text-lg self-start">Account</h3>
-              <SidebarNavLink to="/subscription" label="Subscription" />
-              <SidebarButton label="Logout" />
+              <SidebarNavLink
+                to="/subscription"
+                label="Subscription"
+                icon={<BiCrown size={16} />}
+              />
+              <div className="w-full flex items-center group dark:bg-[#ffffff13] dark:hover:bg-[#ffffff22] cursor-pointer">
+                <button className="relative flex items-center gap-4 font-medium whitespace-nowrap border p-2 transition-all duration-300 ease-in-out rounded-md w-full overflow-hidden">
+                  <div className="flex-shrink-0 cursor-pointer">
+                    <BiLogOut size={16} />
+                  </div>
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -83,7 +109,15 @@ const Sidebar = () => {
 };
 
 // Reusable Sidebar NavLink Component
-const SidebarNavLink = ({ to, label }: { to: string; label: string }) => (
+const SidebarNavLink = ({
+  to,
+  label,
+  icon,
+}: {
+  to: string;
+  label: string;
+  icon: any;
+}) => (
   <div className="w-full flex items-center group">
     <NavLink
       to={to}
@@ -95,28 +129,9 @@ const SidebarNavLink = ({ to, label }: { to: string; label: string }) => (
         }`
       }
     >
-      <DummySVG />
+      <div className="flex-shrink-0">{icon}</div>
       <span>{label}</span>
     </NavLink>
-  </div>
-);
-
-// Reusable Sidebar Button
-const SidebarButton = ({ label }: { label: string }) => (
-  <div className="w-full flex items-center group dark:bg-[#ffffff13] dark:hover:bg-[#ffffff22] cursor-pointer">
-    <button className="relative flex items-center gap-4 font-medium whitespace-nowrap border p-2 transition-all duration-300 ease-in-out rounded-md w-full overflow-hidden">
-      <DummySVG />
-      <span>{label}</span>
-    </button>
-  </div>
-);
-
-// Reusable Dummy SVG Placeholder
-const DummySVG = () => (
-  <div className="flex-shrink-0">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-      <circle cx="12" cy="12" r="10" />
-    </svg>
   </div>
 );
 

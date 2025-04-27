@@ -1,6 +1,5 @@
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
+import "swiper/swiper-bundle.css";
+
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
