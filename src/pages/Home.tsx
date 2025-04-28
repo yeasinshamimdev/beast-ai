@@ -10,7 +10,6 @@ const Home = () => {
         <div className="flex flex-col items-center h-full w-full scroll">
           <div className="flex flex-col gap-4 w-full">
             <AiToolCarousel />
-
             <AITools />
             <AIApps />
             <Discover />
