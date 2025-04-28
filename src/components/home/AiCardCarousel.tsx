@@ -40,18 +40,18 @@ const AiToolCarousel = () => {
         slidesPerView={1}
         navigation
         pagination={{ clickable: true }}
-        autoplay={{ delay: 5000 }}
+        autoplay={{ delay: 6000 }}
         loop
         className="w-full"
       >
         {aiTools.map((tool, index) => (
           <SwiperSlide key={index}>
-            <div className="flex flex-col sm:flex-row items-center gap-4 bg-gradient-to-r from-blue-500 via-purple-500 via-pink-500 to-violet-500 text-white p-6 rounded-md h-full sm:max-h-72">
+            <div className="flex flex-col sm:flex-row items-center gap-4 bg-gradient-to-r from-blue-500 via-purple-500 to-violet-500 text-white p-6 rounded-md h-full sm:max-h-72">
               <div className="sm:w-[40%] w-full flex justify-center items-center h-full">
                 <img
                   src={tool.image}
                   alt={tool.title}
-                  className="rounded-md object-contain border aspect-[4/3] max-h-full"
+                  className="rounded-md object-contain border aspect-[4/3] max-h-64"
                 />
               </div>
               <div className="sm:w-[60%] w-full flex flex-col justify-center text-center sm:text-left gap-2">
