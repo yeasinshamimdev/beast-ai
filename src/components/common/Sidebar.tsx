@@ -1,3 +1,4 @@
+import { useAuth } from "@/hooks/useAuth";
 import useViewportWidth from "@/hooks/useViewPort";
 import { useState } from "react";
 import { BiCrown, BiHome, BiLogOut, BiMenu, BiUser } from "react-icons/bi";
@@ -7,6 +8,7 @@ import { NavLink } from "react-router";
 
 const Sidebar = () => {
   const width = useViewportWidth();
+  const { logout } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(width >= 1024);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -98,11 +100,12 @@ const Sidebar = () => {
                 label="Subscription"
                 icon={<BiCrown size={16} />}
               />
-              <div className="w-full flex items-center group dark:bg-[#ffffff13] dark:hover:bg-[#ffffff22] cursor-pointer">
-                <button className="relative flex items-center gap-4 font-medium whitespace-nowrap border p-2 rounded-md w-full overflow-hidden">
-                  <div className="flex-shrink-0 cursor-pointer">
-                    <BiLogOut size={16} />
-                  </div>
+              <div className="w-full flex items-center dark:bg-[#ffffff13] dark:hover:bg-[#ffffff22] cursor-pointer">
+                <button
+                  onClick={logout}
+                  className="relative flex items-center gap-4 font-medium whitespace-nowrap border p-2 rounded-md w-full overflow-hidden"
+                >
+                  <BiLogOut size={16} />
                   <span>Logout</span>
                 </button>
               </div>

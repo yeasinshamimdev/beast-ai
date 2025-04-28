@@ -1,9 +1,29 @@
+import { useRef } from "react";
+import { Link } from "react-router";
+
 const AITools = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const { scrollLeft, clientWidth } = scrollRef.current;
+      const scrollAmount =
+        direction === "left" ? -clientWidth / 2 : clientWidth / 2;
+      scrollRef.current.scrollTo({
+        left: scrollLeft + scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   return (
     <div className="flex flex-col gap-2 w-full relative">
       <h2 className="text-2xl font-bold">AI Tools</h2>
       <div className="flex items-center gap-2 overflow-x-scroll scroll-smooth snap-x scroll-px-2 snap-mandatory w-full">
-        <button className="absolute -left-4 z-10 text-white dark:text-black bg-black dark:bg-white bg-opacity-50 dark:bg-opacity-70 p-2 rounded-full">
+        <button
+          onClick={() => scroll("left")}
+          className="absolute -left-4 z-10 text-white dark:text-black bg-black dark:bg-white bg-opacity-50 dark:bg-opacity-70 p-2 rounded-full"
+        >
           {/* Left Arrow SVG */}
           <svg
             stroke="currentColor"
@@ -19,8 +39,8 @@ const AITools = () => {
         </button>
 
         {/* Example Tool Card */}
-        <a
-          href="/ai-story"
+        <Link
+          to="/ai-story"
           className="flex flex-col items-center justify-center flex-shrink-0 gap-1 snap-end group relative whitespace-nowrap font-medium rounded bg-blue-500 text-white shadow-md hover:bg-blue-600 overflow-hidden border border-black dark:border-white"
         >
           <video
@@ -51,11 +71,14 @@ const AITools = () => {
             </svg>
             AI Story
           </div>
-        </a>
+        </Link>
 
         {/* Repeat more <a> elements for other AI tools... */}
 
-        <button className="absolute -right-4 z-10 text-white dark:text-black bg-black dark:bg-white bg-opacity-50 dark:bg-opacity-70 p-2 rounded-full">
+        <button
+          onClick={() => scroll("right")}
+          className="absolute -right-4 z-10 text-white dark:text-black bg-black dark:bg-white bg-opacity-50 dark:bg-opacity-70 p-2 rounded-full"
+        >
           {/* Right Arrow SVG */}
           <svg
             stroke="currentColor"
