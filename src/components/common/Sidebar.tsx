@@ -1,7 +1,14 @@
 import { useAuth } from "@/hooks/useAuth";
 import useViewportWidth from "@/hooks/useViewPort";
 import { useState } from "react";
-import { BiCrown, BiHome, BiLogOut, BiMenu, BiUser } from "react-icons/bi";
+import {
+  BiCrown,
+  BiHome,
+  BiLogOut,
+  BiMenu,
+  BiUser,
+  BiUserCircle,
+} from "react-icons/bi";
 import { FaTools } from "react-icons/fa";
 import { GrProjects } from "react-icons/gr";
 import { NavLink } from "react-router";
@@ -27,7 +34,7 @@ const Sidebar = () => {
       <div
         className={`fixed z-30 top-0 left-0 h-screen transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 lg:static w-64 border-r dark:border-slate-50 bg-white dark:bg-black`}
+        } lg:translate-x-0 lg:static w-64 border-r border-slate-200 dark:border-slate-50 bg-white dark:bg-black`}
       >
         <div className="h-full flex flex-col items-center justify-center gap-2 px-3">
           {/* Collapse Button for Mobile */}
@@ -57,17 +64,18 @@ const Sidebar = () => {
           </div>
 
           {/* Content */}
-          <div className="w-full h-full max-h-[90%] flex flex-col gap-2 overflow-hidden">
+          <div className="w-full h-full flex flex-col gap-2 overflow-hidden">
             {/* Profile */}
-            <div className="flex flex-col items-center gap-2 h-full justify-center">
+            <div className="flex flex-col items-center gap-2 h-full mt-4">
               <div className="w-full flex items-center group">
                 <button className="flex items-center gap-4 font-semibold capitalize whitespace-nowrap rounded-md border p-2 w-full overflow-hidden">
-                  <img
-                    src="https://lh3.googleusercontent.com/a/ACg8ocI5ZER5vyWOULrWkR6Gp8_c-SXkd355X5MVYUUpMD_DB7jx86Q=s96-c"
+                  {/* <img
+                    src=""
                     className="rounded-full w-8"
                     alt="profile"
-                  />
-                  Yeasin Shamim
+                  /> */}
+                  <BiUserCircle size={30} />
+                  Mr Beast
                 </button>
               </div>
 

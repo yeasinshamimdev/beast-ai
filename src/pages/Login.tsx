@@ -1,6 +1,7 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
+import { Link } from "react-router";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -35,7 +36,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black">
-      <div className="bg-white dark:bg-black border dark:border-gray-700 rounded-lg shadow-lg p-8 w-full max-w-md">
+      <div className="bg-white dark:bg-black dark:border-gray-700 rounded-lg shadow-2xl border border-slate-200 p-8 w-full max-w-md">
         {/* Logo */}
         <div className="flex justify-center items-center gap-3 mb-6">
           <img src="/mr-beast-logo.svg" alt="Beast AI" className="h-12" />
@@ -73,7 +74,7 @@ const LoginPage = () => {
                 errors.email
                   ? "border-red-500"
                   : "border-gray-300 dark:border-gray-600"
-              } rounded-md bg-slate-400 dark:bg-slate-200 text-gray-900 dark:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } rounded-md bg-slate-50 dark:bg-slate-200 text-gray-900 dark:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
             {errors.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -96,7 +97,7 @@ const LoginPage = () => {
                 errors.password
                   ? "border-red-500"
                   : "border-gray-300 dark:border-gray-600"
-              } rounded-md bg-slate-400 dark:bg-slate-200 text-gray-900 dark:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500`}
+              } rounded-md bg-slate-50 dark:bg-slate-200 text-gray-900 dark:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
             {errors.password && (
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
@@ -123,9 +124,9 @@ const LoginPage = () => {
         {/* Signup */}
         <div className="mt-4 text-sm text-gray-700 dark:text-gray-300 text-center">
           Don't have an account?{" "}
-          <a href="#" className="text-blue-500 hover:underline">
+          <Link to={"/login"} className="text-blue-500 hover:underline">
             Sign up
-          </a>
+          </Link>
         </div>
 
         {/* Terms */}

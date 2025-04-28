@@ -3,6 +3,7 @@ import MainLayout from "@/layout/MainLayout";
 import AIApps from "@/pages/AIApps";
 import ErrorPage from "@/pages/ErrorPage";
 import Home from "@/pages/Home";
+import LoginPage from "@/pages/Login";
 import MyProjects from "@/pages/MyProjects";
 import Profile from "@/pages/Profile";
 import Subscription from "@/pages/Subscription";
@@ -36,5 +37,10 @@ export const router = createBrowserRouter([
         hydrateFallbackElement: <CommonLoading />,
       },
     ],
+  },
+  {
+    path: "/login",
+    Component: LoginPage,
+    errorElement: <ErrorPage />,
   },
 ]);
