@@ -11,6 +11,7 @@ import {
 } from "react-icons/bi";
 import { FaTools } from "react-icons/fa";
 import { GrProjects } from "react-icons/gr";
+import { SiJfrogpipelines } from "react-icons/si";
 import { NavLink } from "react-router";
 
 const Sidebar = () => {
@@ -97,6 +98,11 @@ const Sidebar = () => {
                 to="/ai-apps"
                 label="AI Apps"
                 icon={<FaTools size={14} />}
+              />
+              <SidebarNavLink
+                to="/pipelines"
+                label="Pipelines"
+                icon={<SiJfrogpipelines  size={14} />}
               />
             </div>
 
