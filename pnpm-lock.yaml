@@ -17,9 +17,15 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.1.0(react@19.1.0)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@19.1.0)
       react-router:
         specifier: ^7.5.2
         version: 7.5.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      swiper:
+        specifier: ^11.2.6
+        version: 11.2.6
       tailwindcss:
         specifier: ^4.1.4
         version: 4.1.4
@@ -1122,6 +1128,11 @@ packages:
     peerDependencies:
       react: ^19.1.0
 
+  react-icons@5.5.0:
+    resolution: {integrity: sha512-MEFcXdkP3dLo8uumGI5xN3lDFNsRtrjbOEKDLD7yv76v4wpnEq2Lt2qeHaQOr34I/wPN3s3+N08WkQ+CW37Xiw==}
+    peerDependencies:
+      react: '*'
+
   react-refresh@0.17.0:
     resolution: {integrity: sha512-z6F7K9bV85EfseRCp2bzrpyQ0Gkw1uLoCel9XBVWPg/TjRj94SkJzUTGfOa4bs7iJvBWtQG0Wq7wnI0syw3EBQ==}
     engines: {node: '>=0.10.0'}
@@ -1190,6 +1201,10 @@ packages:
   supports-color@7.2.0:
     resolution: {integrity: sha512-qpCAvRl9stuOHveKsn7HncJRvv501qIacKzQlO/+Lwxc9+0q2wLyv4Dfvt80/DPn2pqOBsJdDiogXGR9+OvwRw==}
     engines: {node: '>=8'}
+
+  swiper@11.2.6:
+    resolution: {integrity: sha512-8aXpYKtjy3DjcbzZfz+/OX/GhcU5h+looA6PbAzHMZT6ESSycSp9nAjPCenczgJyslV+rUGse64LMGpWE3PX9Q==}
+    engines: {node: '>= 4.7.0'}
 
   tailwindcss@4.1.4:
     resolution: {integrity: sha512-1ZIUqtPITFbv/DxRmDr5/agPqJwF69d24m9qmM1939TJehgY539CtzeZRjbLt5G6fSy/7YqqYsfvoTEw9xUI2A==}
@@ -2260,6 +2275,10 @@ snapshots:
       react: 19.1.0
       scheduler: 0.26.0
 
+  react-icons@5.5.0(react@19.1.0):
+    dependencies:
+      react: 19.1.0
+
   react-refresh@0.17.0: {}
 
   react-router@7.5.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
@@ -2328,6 +2347,8 @@ snapshots:
   supports-color@7.2.0:
     dependencies:
       has-flag: 4.0.0
+
+  swiper@11.2.6: {}
 
   tailwindcss@4.1.4: {}
 
