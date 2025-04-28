@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { redirect } from "react-router";
 import { AuthContext } from "./useAuth";
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -15,6 +16,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const logout = () => {
     localStorage.removeItem("user");
     setUser(null);
+    redirect("/auth/login");
   };
 
   return (
