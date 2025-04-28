@@ -2,7 +2,7 @@ import { NavLink } from "react-router";
 
 const Navbar = () => {
   return (
-    <div className="w-full flex items-center justify-center border-b dark:border-slate-50 transition-all duration-300 ease-in-out">
+    <div className="w-full flex items-center justify-center border-b border-slate-200 dark:border-slate-50 transition-all duration-300 ease-in-out">
       <div className="flex items-center justify-between w-full max-w-[95%] md:max-w-[90%] py-4">
         {/* Logo Section */}
         <div className="flex items-center gap-2 lg:gap-10">
