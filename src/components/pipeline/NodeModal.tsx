@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from "react";
 import { AiModelConfig } from "@/types/aiModels";
+import React, { useEffect, useRef } from "react";
 import { FaSearch } from "react-icons/fa";
 
 interface NodeModalProps {
@@ -52,28 +52,28 @@ const NodeModal: React.FC<NodeModalProps> = ({ isOpen, onClose, onSelect }) => {
       {/* Drawer with slide transition */}
       <div
         ref={drawerRef}
-        className={`fixed top-20 right-0 h-full w-[400px] bg-white border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-50  `}
+        className={`fixed top-20 right-0 h-full w-[400px] dark:bg-black dark:text-white bg-white text-black border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-50  `}
       >
         <div className="">
           <h3 className="text-xl font-semibold border-b border-gray-200 p-4">
             Select AI Model
           </h3>
           <div className="p-4">
-          <div className="flex items-center border border-gray-300 rounded-md px-3 py-2.5 w-full max-w-md">
-            <FaSearch className="text-gray-400 mr-2" />
-            <input
-              type="text"
-              placeholder="Search nodes..."
-              className="w-full outline-none text-gray-700 placeholder-gray-400"
-            />
-          </div>
+            <div className="flex items-center border border-gray-300 rounded-md px-3 py-2.5 w-full max-w-md">
+              <FaSearch className="text-gray-400 mr-2" />
+              <input
+                type="text"
+                placeholder="Search nodes..."
+                className="w-full outline-none text-gray-700 placeholder-gray-400"
+              />
+            </div>
           </div>
           <div className="space-y-2 px-4">
             {dummyAiModels.map((model, idx) => (
               <button
                 key={idx}
                 onClick={() => onSelect(model)}
-                className="w-full text-left px-3 py-2 bg-gray-100 rounded hover:bg-gray-200 transition cursor-pointer"
+                className="w-full text-left px-3 py-2 border dark:border-slate-50 border-slate-200 dark:bg-black dark:text-white bg-white text-black rounded hover:bg-gray-200 hover:dark:bg-slate-700 transition cursor-pointer"
               >
                 {model.name}
               </button>

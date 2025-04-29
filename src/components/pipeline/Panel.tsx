@@ -1,7 +1,7 @@
+import { AiNodeData } from "@/types/workflow";
+import clsx from "clsx";
 import { useEffect, useRef } from "react";
 import { Node } from "reactflow"; // Ensure this import matches your library or type definition
-import clsx from "clsx";
-import { AiNodeData } from "@/types/workflow";
 
 interface PanelProps {
   isOpen: boolean;
@@ -63,13 +63,12 @@ const Panel: React.FC<PanelProps> = ({
         <h2 className="text-lg font-bold mb-4">Node Settings</h2>
 
         <div className="">
-  <p className="text-sm font-medium mb-2">Prompt</p>
-  <textarea
-    placeholder="Enter your prompt here..."
-    className="w-full h-44 border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
-  />
-</div>
-
+          <p className="text-sm font-medium mb-2">Prompt</p>
+          <textarea
+            placeholder="Enter your prompt here..."
+            className="w-full h-44 border border-gray-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none"
+          />
+        </div>
 
         <button
           onClick={handleDelete}
