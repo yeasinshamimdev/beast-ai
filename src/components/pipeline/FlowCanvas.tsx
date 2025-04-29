@@ -8,8 +8,8 @@ import ReactFlow, {
   MiniMap,
   Connection,
   Edge,
-  Node,
-} from "reactflow"; 
+  Node, 
+} from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import NodeModal from "./NodeModal";
 import { CustomAiNode } from "./CustomNodes";
@@ -22,6 +22,7 @@ import Save from "@/assets/icons/Save";
 import { LuChevronLeft, LuCircleFadingPlus } from "react-icons/lu";
 import NodeContextMenu from "./NodeContextMenu";
 import { useParams } from "react-router";
+import Panel from "./Panel";
 
 const nodeTypes = { aiNode: CustomAiNode };
 
@@ -37,6 +38,8 @@ const FlowCanvas = () => {
     nodeId: string;
   } | null>(null);
   const [title, setTitle] = useState<string>("");
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -70,6 +73,9 @@ const FlowCanvas = () => {
 
   const handleAddNode = (config: AiModelConfig) => {
     const newNodeId = uuidv4();
+
+    const isFirstNode = nodes.length === 0;
+
     const newNode: Node<AiNodeData> = {
       id: newNodeId,
       type: "aiNode",
@@ -77,7 +83,13 @@ const FlowCanvas = () => {
         x: parentNode ? parentNode.position.x + 250 : 100,
         y: parentNode ? parentNode.position.y + 100 : 100,
       },
-      data: { label: config.name, config },
+      data: {
+        label: config.name,
+        config: {
+          ...config,
+          isTrigger: isFirstNode,
+        },
+      },
     };
 
     setNodes((nds) => [...nds, newNode] as any);
@@ -120,18 +132,24 @@ const FlowCanvas = () => {
         isActive: existing?.isActive || false,
       };
 
-      console.log(workflowData)
+      // console.log(workflowData);
       saveWorkflow(id, workflowData);
       alert("Workflow saved!");
-      window.history.back()
+      window.history.back();
     }
+  };
+
+  // When a node is clicked
+  const handleNodeSelect = (node: Node<AiNodeData>) => {
+    setSelectedNodeId(node?.id);
+    setIsPanelOpen(true);
   };
 
   return (
     <div className="w-full h-[90vh] relative">
       <div className="absolute top-4 left-0 z-10 flex items-center px-4 gap-2.5">
         <div
-        onClick={() => window.history.back()}
+          onClick={() => window.history.back()}
           className={
             "hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer"
           }
@@ -187,7 +205,9 @@ const FlowCanvas = () => {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         onNodeContextMenu={onNodeContextMenu}
+        onNodeClick={(_, node) => handleNodeSelect(node)}
         fitView
+        connectionLineStyle={{ stroke: "#000", strokeWidth: 2 }}
       >
         <MiniMap />
         <Controls />
@@ -208,6 +228,13 @@ const FlowCanvas = () => {
           onClose={() => setContextMenu(null)}
         />
       )}
+
+      <Panel
+        isOpen={isPanelOpen}
+        selectedNodeId={selectedNodeId as string}
+        setNodes={setNodes as any}
+        onClose={() => setIsPanelOpen(false)}
+      />
     </div>
   );
 };

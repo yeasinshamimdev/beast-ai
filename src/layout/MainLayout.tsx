@@ -14,7 +14,7 @@ const MainLayout = () => {
       <Sidebar />
       <section className="flex flex-col items-center h-full w-full scroll overflow-y-auto">
         <Navbar />
-        <div className="w-[calc(100vw-220px)]">
+        <div className="md:w-[calc(100vw-220px)]">
           <Outlet />
         </div>
       </section>
