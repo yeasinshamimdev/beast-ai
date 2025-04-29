@@ -3,7 +3,7 @@ import { AiModelConfig } from './aiModels';
 
 export interface AiNodeData {
   label: string;
-  config: AiModelConfig;
+  config: AiModelConfig; 
 }
 
 export interface WorkflowData {
