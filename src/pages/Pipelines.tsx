@@ -46,14 +46,16 @@ function Pipelines() {
     <div className="p-4">
       <div className="flex items-center justify-between w-full bg-white dark:bg-black">
         <div>
-          <h2 className="text-xl font-semibold text-black">Overview</h2>
+          <h2 className="text-xl font-semibold dark:text-white text-black">
+            Overview
+          </h2>
           <p className="text-gray-500 font-normal text-sm">
             All the workflows, credentials and executions you have access to
           </p>
         </div>
         <button
           onClick={handleNavigation}
-          className="bg-black text-white text-sm font-medium hover:bg-gray-800 transition-all ease-in-out duration-300 rounded-md px-4 py-2 cursor-pointer flex items-center gap-1"
+          className="bg-black dark:border dark:border-slate-50 text-white text-sm font-medium hover:bg-gray-800 transition-all ease-in-out duration-300 rounded-md px-4 py-2 cursor-pointer flex items-center gap-1"
         >
           <BiPlus className="w-5 h-5" strokeWidth={1} /> Create pipeline
         </button>
@@ -66,8 +68,10 @@ function Pipelines() {
             ))
           ) : (
             <div className="p-5 flex flex-col items-center justify-center gap-3 h-[300px] rounded-lg bg-gray-50">
-              <FaRegQuestionCircle size={60}  className="text-gray-400"/>
-              <p className="text-gray-500 font-normal">Looks like you don't have a pipeline yet</p>
+              <FaRegQuestionCircle size={60} className="text-gray-400" />
+              <p className="text-gray-500 font-normal">
+                Looks like you don't have a pipeline yet
+              </p>
               <button
                 onClick={handleNavigation}
                 className="bg-black w-fit text-white text-sm font-medium hover:bg-gray-800 transition-all ease-in-out duration-300 rounded-md px-4 py-2 cursor-pointer flex items-center gap-1"
