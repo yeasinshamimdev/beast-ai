@@ -44,20 +44,21 @@ function Pipelines() {
 
   return (
     <div className="p-4">
-      <div className="flex items-center justify-between w-full bg-white dark:bg-black">
+      <div className="flex items-center justify-between gap-4 w-full bg-white dark:bg-black">
         <div>
-          <h2 className="text-xl font-semibold dark:text-white text-black">
+          <h2 className="md:text-xl text-lg font-semibold dark:text-white text-black">
             Overview
           </h2>
-          <p className="text-gray-500 font-normal text-sm">
+          <p className="text-gray-500 font-normal text-xs md:text-sm">
             All the workflows, credentials and executions you have access to
           </p>
         </div>
         <button
           onClick={handleNavigation}
-          className="bg-black dark:border dark:border-slate-50 text-white text-sm font-medium hover:bg-gray-800 transition-all ease-in-out duration-300 rounded-md px-4 py-2 cursor-pointer flex items-center gap-1"
+          className="bg-black dark:border dark:border-slate-50 text-white text-sm font-medium hover:bg-gray-800 transition-all ease-in-out duration-300 rounded-md px-3 md:px-4 py-1.5 md:py-2 cursor-pointer flex items-center gap-1"
         >
-          <BiPlus className="w-5 h-5" strokeWidth={1} /> Create pipeline
+          <BiPlus className="w-5 h-5" strokeWidth={1} />{" "}
+          <span className="hidden md:block">Create pipeline</span>
         </button>
       </div>
       {
@@ -116,26 +117,50 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ workflow }) => {
   };
 
   return (
-    <div className="p-4 cursor-pointer flex items-center justify-between w-full bg-white border border-gray-200 rounded-md shadow-sm">
+    <div className="p-4 cursor-pointer flex md:flex-row flex-col items-start md:items-center justify-between w-full bg-white border border-gray-200 rounded-md shadow-sm relative">
       {/* Left Side */}
-      <div onClick={handleNavigate}>
-        <h3 className="text-lg font-semibold text-gray-800">{workflow.name}</h3>
-        <p className="text-sm text-gray-500">
-          Last updated {workflow.updatedAt} | Created {workflow.createdAt}
-        </p>
+      <div className="flex justify-between w-full">
+        <div onClick={handleNavigate}>
+          <h3 className="text-md md:text-lg font-semibold text-gray-800">
+            {workflow.name}
+          </h3>
+          <p className="text-xs md:text-sm text-gray-500">
+            Last updated {workflow.updatedAt} | Created {workflow.createdAt}
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="mt-6 md:mt-0">
+            <span className="text-xs md:text-sm mb-1 text-gray-500 md:hidden block">
+              {isActive ? "Active" : "Inactive"}
+            </span>
+            <label className="relative inline-flex items-center cursor-pointer md:hidden">
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={toggleActive}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:bg-blue-600"></div>
+              <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform transform peer-checked:translate-x-5"></div>
+            </label>
+          </div>
+        </div>
       </div>
+      <FiMoreVertical className="text-gray-500 cursor-pointer md:hidden block absolute top-3 right-3" />
 
       {/* Right Side */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center md:space-x-4 mt-2 md:mt-0">
         <div className="flex items-center space-x-1 px-2 py-1 border border-gray-200 rounded-md bg-gray-50">
-          <FaLayerGroup className="text-gray-500" />
-          <span className="text-sm text-gray-500">Video content gener...</span>
+          <FaLayerGroup className="text-gray-500 " />
+          <span className="text-xs md:text-sm text-gray-500">
+            Video content gener...
+          </span>
         </div>
 
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-500 hidden md:block">
           {isActive ? "Active" : "Inactive"}
         </span>
-        <label className="relative inline-flex items-center cursor-pointer">
+        <label className="relative md:inline-flex items-center cursor-pointer hidden">
           <input
             type="checkbox"
             checked={isActive}
@@ -146,7 +171,7 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ workflow }) => {
           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform transform peer-checked:translate-x-5"></div>
         </label>
 
-        <FiMoreVertical className="text-gray-500 cursor-pointer" />
+        <FiMoreVertical className="text-gray-500 cursor-pointer hidden md:block" />
       </div>
     </div>
   );

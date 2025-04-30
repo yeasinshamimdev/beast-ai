@@ -46,14 +46,14 @@ const Panel: React.FC<PanelProps> = ({
     <>
       {/* 🔹 Overlay */}
       {isOpen && (
-        <div className="fixed inset-20 z-40  mx-auto bg-transparent bg-opacity-30 transition-opacity h-full w-[calc(100vw-420px)]" />
+        <div className="fixed inset-0 md:inset-20 z-40  mx-auto bg-transparent bg-opacity-30 transition-opacity h-full w-full md:w-[calc(100vw-420px)]" />
       )}
 
       {/* 🔹 Panel */}
       <div
         ref={panelRef}
         className={clsx(
-          "fixed top-20 h-[calc(100vh-80px)] w-[300px] bg-white shadow-lg p-4 z-50 transition-all duration-300 ease-in-out",
+          "fixed top-[76px] h-[calc(100vh-80px)] w-[300px] bg-white shadow-lg p-4 z-50 transition-all duration-300 ease-in-out",
           {
             "right-0": isOpen,
             "-right-[320px]": !isOpen,
