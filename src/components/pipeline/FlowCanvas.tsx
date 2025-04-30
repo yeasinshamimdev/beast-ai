@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import ReactFlow, {
   addEdge,
   useNodesState,
@@ -8,16 +8,15 @@ import ReactFlow, {
   MiniMap,
   Connection,
   Edge,
-  Node, 
+  Node,
 } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import NodeModal from "./NodeModal";
 import { CustomAiNode } from "./CustomNodes";
-
 import "reactflow/dist/style.css";
 import { AiNodeData } from "@/types/workflow";
 import { loadWorkflow, saveWorkflow } from "@/utils/workflowUtils";
-import { AiModelConfig } from "@/types/aiModels";
+import { Model } from "@/types/aiModels";
 import Save from "@/assets/icons/Save";
 import { LuChevronLeft, LuCircleFadingPlus } from "react-icons/lu";
 import NodeContextMenu from "./NodeContextMenu";
@@ -30,7 +29,7 @@ const FlowCanvas = () => {
   const { id } = useParams<{ id: string }>();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<AiNodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [parentNode, setParentNode] = useState<Node<AiNodeData> | null>(null);
   const [contextMenu, setContextMenu] = useState<{
     x: number;
@@ -38,7 +37,7 @@ const FlowCanvas = () => {
     nodeId: string;
   } | null>(null);
   const [title, setTitle] = useState<string>("");
-  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedNode, setSelectedNode] = useState<Node<AiNodeData> | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   useEffect(() => {
@@ -57,11 +56,7 @@ const FlowCanvas = () => {
     node: Node<AiNodeData>
   ) => {
     event.preventDefault();
-    setContextMenu({
-      x: event.clientX,
-      y: event.clientY,
-      nodeId: node.id,
-    });
+    setContextMenu({ x: event.clientX, y: event.clientY, nodeId: node.id });
   };
 
   const deleteNode = (nodeId: string) => {
@@ -71,9 +66,8 @@ const FlowCanvas = () => {
     );
   };
 
-  const handleAddNode = (config: AiModelConfig) => {
+  const handleAddNode = (model: Model) => {
     const newNodeId = uuidv4();
-
     const isFirstNode = nodes.length === 0;
 
     const newNode: Node<AiNodeData> = {
@@ -84,11 +78,9 @@ const FlowCanvas = () => {
         y: parentNode ? parentNode.position.y + 100 : 100,
       },
       data: {
-        label: config.name,
-        config: {
-          ...config,
-          isTrigger: isFirstNode,
-        },
+        label: model.name,
+        config: model,
+        isTrigger: isFirstNode,
       },
     };
 
@@ -132,16 +124,14 @@ const FlowCanvas = () => {
         isActive: existing?.isActive || false,
       };
 
-      // console.log(workflowData);
       saveWorkflow(id, workflowData);
       alert("Workflow saved!");
       window.history.back();
     }
   };
 
-  // When a node is clicked
   const handleNodeSelect = (node: Node<AiNodeData>) => {
-    setSelectedNodeId(node?.id);
+    setSelectedNode(node);
     setIsPanelOpen(true);
   };
 
@@ -150,9 +140,7 @@ const FlowCanvas = () => {
       <div className="absolute top-4 left-0 z-10 flex items-center px-4 gap-2.5">
         <div
           onClick={() => window.history.back()}
-          className={
-            "hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer"
-          }
+          className="hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer"
         >
           <LuChevronLeft size={20} />
         </div>
@@ -161,30 +149,23 @@ const FlowCanvas = () => {
           type="text"
           placeholder="Untitled workflow"
           defaultValue={title}
-          className={
-            "hover:bg-gray-50 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer focus:outline-none"
-          }
+          className="hover:bg-gray-50 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer focus:outline-none"
         />
       </div>
-      <div 
-        className="w-fit mx-auto flex items-center justify-center gap-4 absolute bottom-10 md:bottom-8 left-0 right-0 z-10"
-      >
+
+      <div className="w-fit mx-auto flex items-center justify-center gap-4 absolute bottom-10 md:bottom-8 left-0 right-0 z-10">
         <button
           onClick={() => {
             setParentNode(null);
             setIsModalOpen(true);
           }}
-          className={
-            "hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer"
-          }
+          className="hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer"
         >
           <LuCircleFadingPlus size={20} />
         </button>
         <button
           onClick={saveCurrentWorkflow}
-          className={
-            "hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer"
-          }
+          className="hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer"
         >
           <Save size={20} />
         </button>
@@ -200,7 +181,7 @@ const FlowCanvas = () => {
         onNodeContextMenu={onNodeContextMenu}
         onNodeClick={(_, node) => handleNodeSelect(node)}
         fitView
-        connectionLineStyle={{ stroke: "#000", strokeWidth: 2 }} 
+        connectionLineStyle={{ stroke: "#000", strokeWidth: 2 }}
       >
         <MiniMap />
         <Controls />
@@ -224,7 +205,7 @@ const FlowCanvas = () => {
 
       <Panel
         isOpen={isPanelOpen}
-        selectedNodeId={selectedNodeId as string}
+        selectedNode={selectedNode}
         setNodes={setNodes as any}
         onClose={() => setIsPanelOpen(false)}
       />
