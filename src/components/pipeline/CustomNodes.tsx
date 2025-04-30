@@ -81,17 +81,19 @@ const typeStyles: Record<
 };
 
 export const CustomAiNode = ({ data }: NodeProps<AiNodeData>) => {
-  const { config } = data;
-  const category = config?.type || "system";
-  const styles = typeStyles[category] || typeStyles["system"];
+  const { config } = data; 
+  const category = Array.isArray(config?.output_type)
+    ? config?.output_type[0]
+    : config?.output_type || "system";
+    const styles = typeStyles[category as keyof typeof typeStyles] || typeStyles["system"];
 
-  const isFirstNode = config?.isTrigger; // Special flag for no left handle
+  const isFirstNode = data?.isTrigger;  
 
   return (
     <div
-    className={clsx(
-        'rounded-md px-4 py-3 shadow-md min-w-[100px] max-w-[160px] border border-gray-300 cursor-pointer hover:shadow-lg transition',
-        styles.boxBg  
+      className={clsx(
+        "rounded-md px-4 py-3 shadow-md min-w-[100px] max-w-[160px] border border-gray-300 cursor-pointer hover:shadow-lg transition",
+        styles.boxBg
       )}
     >
       {/* Only show input handle if not trigger */}

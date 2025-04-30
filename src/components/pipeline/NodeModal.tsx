@@ -1,22 +1,15 @@
-import { AiModelConfig } from "@/types/aiModels";
+import { modelData } from "@/constants/fakeData";
+import {  Model } from "@/types/aiModels";
 import React, { useEffect, useRef } from "react";
 import { FaSearch } from "react-icons/fa";
 
 interface NodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (config: AiModelConfig) => void;
+  onSelect: (model: Model) => void;
 }
 
-const dummyAiModels: AiModelConfig[] = [
-  { name: "OpenAI GPT-4", type: "text", params: ["prompt", "temperature"] },
-  { name: "DALL·E", type: "image", params: ["prompt"] },
-  { name: "ElevenLabs", type: "voice", params: ["text", "voiceType"] },
-  { name: "Stable Diffusion", type: "image", params: ["prompt", "style"] },
-  { name: "Whisper", type: "audio", params: ["audioFile"] },
-  { name: "Claude AI", type: "text", params: ["prompt", "context"] },
-  { name: "Pika Labs", type: "video", params: ["prompt", "duration"] },
-];
+ 
 
 const NodeModal: React.FC<NodeModalProps> = ({ isOpen, onClose, onSelect }) => {
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -56,7 +49,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ isOpen, onClose, onSelect }) => {
       >
         <div className="">
           <h3 className="text-xl font-semibold border-b border-gray-200 p-4">
-            Select AI Model
+            Select Models and Actions
           </h3>
           <div className="p-4">
             <div className="flex items-center border border-gray-300 rounded-md px-3 py-2.5 w-full max-w-md">
@@ -69,14 +62,18 @@ const NodeModal: React.FC<NodeModalProps> = ({ isOpen, onClose, onSelect }) => {
             </div>
           </div>
           <div className="space-y-2 px-4">
-            {dummyAiModels.map((model, idx) => (
-              <button
-                key={idx}
-                onClick={() => onSelect(model)}
-                className="w-full text-left px-3 py-2 border dark:border-slate-50 border-slate-200 dark:bg-black dark:text-white bg-white text-black rounded hover:bg-gray-200 hover:dark:bg-slate-700 transition cursor-pointer"
-              >
-                {model.name}
-              </button>
+            {modelData.models.map((model, idx: number) => (
+              <div onClick={()=> onSelect(model as unknown as Model)} key={idx} className="flex items-center gap-4 p-2 border border-gray-200 shadow rounded-md cursor-pointer">
+                <img
+                  src={model.logo}
+                  alt={`${model.name} logo`}
+                  className="w-8 h-8 object-contain border border-gray-200 rounded-full"
+                />
+                <div>
+                  <h4 className="text-md font-semibold">{model.name}</h4>
+                  <p className="text-xs text-gray-500">{model.provider}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>

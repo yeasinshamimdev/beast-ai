@@ -1,9 +1,10 @@
 import { Node, Edge } from 'reactflow';
-import { AiModelConfig } from './aiModels';
+import {   Model } from './aiModels';
 
 export interface AiNodeData {
   label: string;
-  config: AiModelConfig; 
+  config: Model; 
+  isTrigger?: boolean;
 }
 
 export interface WorkflowData {
