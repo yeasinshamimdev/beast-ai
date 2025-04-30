@@ -18,7 +18,7 @@ const MainLayout = () => {
         {pathname?.includes("/pipelines") ? (
           <div
             className={`${
-              pathname?.includes("/pipelines") ? "md:w-[calc(100vw-220px)]" : ""
+              pathname?.includes("/pipelines") ? "md:w-[calc(100vw-220px)] w-full" : ""
             }`}
           >
             <Outlet />

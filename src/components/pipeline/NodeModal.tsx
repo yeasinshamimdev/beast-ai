@@ -52,7 +52,7 @@ const NodeModal: React.FC<NodeModalProps> = ({ isOpen, onClose, onSelect }) => {
       {/* Drawer with slide transition */}
       <div
         ref={drawerRef}
-        className={`fixed top-20 right-0 h-full w-[400px] dark:bg-black dark:text-white bg-white text-black border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-50  `}
+        className={`fixed top-[77px] right-0 h-full w-2/3 md:w-[400px] dark:bg-black dark:text-white bg-white text-black border-l border-gray-200 shadow-lg transform transition-transform duration-300 ease-in-out z-50  `}
       >
         <div className="">
           <h3 className="text-xl font-semibold border-b border-gray-200 p-4">
