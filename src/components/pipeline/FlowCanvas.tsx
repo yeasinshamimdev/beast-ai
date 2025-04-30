@@ -166,15 +166,8 @@ const FlowCanvas = () => {
           }
         />
       </div>
-      <div
-        style={{
-          position: "absolute",
-          bottom: 20,
-          left: 0,
-          right: 0,
-          zIndex: 10,
-        }}
-        className="w-fit mx-auto flex items-center justify-center gap-4"
+      <div 
+        className="w-fit mx-auto flex items-center justify-center gap-4 absolute bottom-10 md:bottom-8 left-0 right-0 z-10"
       >
         <button
           onClick={() => {
@@ -207,7 +200,7 @@ const FlowCanvas = () => {
         onNodeContextMenu={onNodeContextMenu}
         onNodeClick={(_, node) => handleNodeSelect(node)}
         fitView
-        connectionLineStyle={{ stroke: "#000", strokeWidth: 2 }}
+        connectionLineStyle={{ stroke: "#000", strokeWidth: 2 }} 
       >
         <MiniMap />
         <Controls />
