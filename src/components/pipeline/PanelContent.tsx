@@ -10,7 +10,7 @@ const formatLabel = (key: unknown): string => {
 };
 
 const isEditableField = (key: string) =>
-  ["prompt", "text", "model", "api_key"].includes(key);
+  ["prompt", "text", "model", "api_key", "label"].includes(key);
 
 interface PanelContentProps {
   model: Model | ActionNode;
@@ -117,7 +117,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ model }) => {
           disabled={!isEditableField(safeKey)}
           placeholder={`Enter your ${label.toLowerCase()}`}
           className={clsx(
-            "border border-gray-200 rounded px-3 py-2",
+            "border border-gray-200 rounded px-3 py-2 focus:outline-none",
             !isEditableField(safeKey) && "bg-gray-100 text-gray-500"
           )}
         />

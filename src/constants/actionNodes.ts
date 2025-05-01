@@ -28,16 +28,8 @@ export const actionNodes: ActionNode[] = [
     name: "Action Button",
     label: "User-triggered action",
     parameters: {
-      label: {
-        type: "text",
-        label: "Button Label",
-        default: "Generate",
-      },
-      purpose: {
-        type: "text",
-        label: "Purpose (optional)",
-        placeholder: "e.g., Generate image from prompt",
-      },
+      label: "",
+      purpose: ["Generate", "Submit", "Download"],
     },
   },
   {
