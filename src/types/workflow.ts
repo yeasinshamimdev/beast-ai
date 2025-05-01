@@ -1,9 +1,17 @@
-import { Node, Edge } from 'reactflow';
-import {   Model } from './aiModels';
+import { Node, Edge } from "reactflow";
+import { Model } from "./aiModels";
+export interface ActionNode {
+  output_type: "wait" | "output_sender" | "button" | "preview";
+  name: string;
+  label?: string;
+  parameters?: {
+    [key: string]: any;
+  };
+}
 
 export interface AiNodeData {
   label: string;
-  config: Model; 
+  config: Model | ActionNode;
   isTrigger?: boolean;
 }
 

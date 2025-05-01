@@ -1,18 +1,27 @@
+import { actionNodes } from "@/constants/actionNodes";
+import { NodeIcons } from "@/constants/typeStyle";
 import { useFetchModels } from "@/hooks/api/useFetchModels";
 import { useModelStore } from "@/store/useModelStore";
 import { Model } from "@/types/aiModels";
+import { ActionNode } from "@/types/workflow";
+import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 import { FaRegQuestionCircle, FaSearch, FaRedo } from "react-icons/fa";
+
 
 interface NodeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (model: Model) => void;
+  onSelect: (model: Model | ActionNode) => void;
 }
+
+const TABS = ["API", "Action"];
+
 
 const NodeModal: React.FC<NodeModalProps> = ({ isOpen, onClose, onSelect }) => {
   const drawerRef = useRef<HTMLDivElement>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState("API");
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -77,11 +86,34 @@ const NodeModal: React.FC<NodeModalProps> = ({ isOpen, onClose, onSelect }) => {
               )}
             </div>
           </div>
-          <ModelsComponent
-            onSelect={onSelect}
-            searchTerm={searchTerm}
-            isModalOpen={isOpen}
-          />
+          <div className="flex border-b border-gray-200 dark:border-gray-700 mb-4">
+            {TABS.map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={clsx(
+                  "flex-1 text-center py-2 font-medium text-sm cursor-pointer hover:bg-gray-100 transition-all ease-in-out duration-300  dark:hover:bg-gray-800",
+                  activeTab === tab
+                    ? "border-b-2 border-black text-black font-semibold dark:text-white dark:border-white"
+                    : "text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+                )}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            {activeTab === "API" && (
+              <ModelsComponent
+                onSelect={onSelect}
+                searchTerm={searchTerm}
+                isModalOpen={isOpen}
+              />
+            )}
+            {/* Replace with actual prop */}
+            {activeTab === "Action" && <ActionComponent onSelect={onSelect} />}
+          </div>
         </div>
       </div>
     </>
@@ -165,7 +197,7 @@ const ModelsComponent: React.FC<ModelsComponentProps> = ({
   }
 
   return (
-    <div className="space-y-2 px-4 pb-4 overflow-y-auto">
+    <div className="space-y-2.5 px-4 pb-4 overflow-y-auto">
       {filteredModels.map((model, idx: number) => (
         <div
           onClick={() => onSelect(model)}
@@ -196,6 +228,30 @@ const ModelsComponent: React.FC<ModelsComponentProps> = ({
             {model.provider && (
               <p className="text-xs text-gray-500 truncate">{model.provider}</p>
             )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+interface ActionComponentProps {
+  onSelect: (model: ActionNode) => void;
+}
+
+const ActionComponent: React.FC<ActionComponentProps> = ({ onSelect }) => {
+  return (
+    <div className="space-y-2.5 px-4">
+      {actionNodes?.map((model, idx: number) => (
+        <div
+          key={idx}
+          onClick={() => onSelect(model)}
+          className="flex items-center gap-3 p-3 border border-gray-200 shadow rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors max-h-16 min-h-full"
+        >
+          {NodeIcons[model?.output_type as keyof typeof NodeIcons] || null}
+          <div>
+            <h3 className="text-sm font-medium block">{model?.name}</h3>
+            <p className="text-xs text-gray-500">{model?.label}</p>
           </div>
         </div>
       ))}
