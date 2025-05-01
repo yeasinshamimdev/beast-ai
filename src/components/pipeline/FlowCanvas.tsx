@@ -66,27 +66,88 @@ const FlowCanvas = () => {
     );
   };
 
+  // const handleAddNode = (model: Model) => {
+  //   const newNodeId = uuidv4();
+  //   const isFirstNode = nodes.length === 0;
+
+  //   const newNode: Node<AiNodeData> = {
+  //     id: newNodeId,
+  //     type: "aiNode",
+  //     position: {
+  //       x: parentNode ? parentNode.position.x + 250 : 100,
+  //       y: parentNode ? parentNode.position.y + 100 : 100,
+  //     },
+  //     data: {
+  //       label: model.name,
+  //       config: model,
+  //       isTrigger: isFirstNode,
+  //     },
+  //   };
+
+  //   setNodes((nds) => [...nds, newNode] as any);
+  //   setParentNode(newNode);
+
+  //   if (parentNode) {
+  //     const newEdge: Edge = {
+  //       id: uuidv4(),
+  //       source: parentNode.id,
+  //       target: newNodeId,
+  //       animated: true,
+  //     };
+  //     setEdges((eds) => [...eds, newEdge]);
+  //   }
+
+  //   setIsModalOpen(false);
+  // };
+
   const handleAddNode = (model: Model) => {
     const newNodeId = uuidv4();
     const isFirstNode = nodes.length === 0;
-
+  
+    // Calculate position based on parent node or last node
+    let newPosition = { x: 100, y: 100 }; // Default position
+  
+    if (parentNode) {
+      // Find all nodes connected to the parent to determine rightmost position
+      const connectedNodes = edges
+        .filter(edge => edge.source === parentNode.id)
+        .map(edge => nodes.find(node => node.id === edge.target))
+        .filter(Boolean) as unknown as Node<AiNodeData>[];
+  
+      // Get the rightmost position of connected nodes
+      const rightmostX = connectedNodes.reduce(
+        (maxX, node) => Math.max(maxX, node.position.x),
+        parentNode.position.x
+      );
+  
+      // Position new node to the right of the rightmost connected node
+      newPosition = {
+        x: rightmostX + 300, // Fixed horizontal spacing
+        y: parentNode.position.y, // Align vertically with parent
+      };
+    } else if (nodes.length > 0) {
+      // If no parent but nodes exist, place below last node
+      const lastNode = nodes[nodes.length - 1];
+      newPosition = {
+        x: lastNode.position.x,
+        y: lastNode.position.y + 150,
+      };
+    }
+  
     const newNode: Node<AiNodeData> = {
       id: newNodeId,
       type: "aiNode",
-      position: {
-        x: parentNode ? parentNode.position.x + 250 : 100,
-        y: parentNode ? parentNode.position.y + 100 : 100,
-      },
+      position: newPosition,
       data: {
         label: model.name,
         config: model,
         isTrigger: isFirstNode,
       },
     };
-
+  
     setNodes((nds) => [...nds, newNode] as any);
     setParentNode(newNode);
-
+  
     if (parentNode) {
       const newEdge: Edge = {
         id: uuidv4(),
@@ -96,10 +157,9 @@ const FlowCanvas = () => {
       };
       setEdges((eds) => [...eds, newEdge]);
     }
-
+  
     setIsModalOpen(false);
   };
-
   const onConnect = useCallback(
     (params: Edge | Connection) => {
       const existing = edges.find((e) => e.source === params.source);
@@ -180,7 +240,8 @@ const FlowCanvas = () => {
         nodeTypes={nodeTypes}
         onNodeContextMenu={onNodeContextMenu}
         onNodeClick={(_, node) => handleNodeSelect(node)}
-        fitView
+        fitViewOptions={{ padding: 0.1 }}
+        fitView={false}
         connectionLineStyle={{ stroke: "#000", strokeWidth: 2 }}
       >
         <MiniMap />
