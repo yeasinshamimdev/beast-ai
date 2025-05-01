@@ -55,7 +55,7 @@ const Panel: React.FC<PanelProps> = ({
       <div
         ref={panelRef}
         className={clsx(
-          "fixed top-[76px] h-[calc(100vh-80px)] w-[300px] md:w-[400px] bg-white shadow-lg p-4 z-50 transition-all duration-300 ease-in-out",
+          "fixed top-[76px] h-[calc(100vh-80px)] w-[300px] md:w-[400px] bg-white border-t border-l border-gray-200 shadow-lg p-4 z-50 transition-all duration-300 ease-in-out",
           {
             "right-0": isOpen,
             "-right-[420px]": !isOpen,
