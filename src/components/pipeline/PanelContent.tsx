@@ -1,6 +1,8 @@
 // import React from "react";
 import clsx from "clsx";
 import { Model } from "@/types/aiModels";
+import { ActionNode } from "@/types/workflow";
+import { NodeIcons } from "@/constants/typeStyle";
 
 const formatLabel = (key: unknown): string => {
   if (typeof key !== "string") return String(key);
@@ -11,7 +13,7 @@ const isEditableField = (key: string) =>
   ["prompt", "text", "model", "api_key"].includes(key);
 
 interface PanelContentProps {
-  model: Model;
+  model: Model | ActionNode;
 }
 
 const PanelContent: React.FC<PanelContentProps> = ({ model }) => {
@@ -126,18 +128,32 @@ const PanelContent: React.FC<PanelContentProps> = ({ model }) => {
   return (
     <div className="overflow-y-scroll h-[85%] mb-5 hide-scrollbar">
       <div className="bg-white dark:bg-gray-900 space-y-4">
-        <div className="flex items-center gap-4">
-          <img
-            src={model.logo}
-            alt={`${model.name} logo`}
-            className="w-8 h-8 object-contain border border-gray-200 rounded-full"
-            onError={(e) => {
-              (e.target as HTMLImageElement).src = "/default-model-icon.png";
-            }}
-          />
+        <div className="flex items-center gap-2.5">
+          {["button", "preview", "wait", "output_sender"].includes(
+            typeof model?.output_type === "string" ? model.output_type : ""
+          ) ? (
+            <div className="border border-gray-200 rounded-full p-2 bg-gray-100">
+              {" "}
+              {NodeIcons[model?.output_type as keyof typeof NodeIcons] || null}
+            </div>
+          ) : (
+            <img
+              src={"logo" in model ? model.logo : "/default-model-icon.png"}
+              alt={`${model.name} logo`}
+              className="w-8 h-8 object-contain border border-gray-200 rounded-full"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = "/default-model-icon.png";
+              }}
+            />
+          )}
           <div>
-            <h2 className="text-md font-bold">{model.name}</h2>
-            <p className="text-xs text-gray-500">{model.provider}</p>
+            <h2 className="text-lg font-bold">{model.name}</h2>
+            {"provider" in model && (
+              <p className="text-xs text-gray-500">{model.provider}</p>
+            )}
+            {"level" in model && (
+              <p className="text-xs text-gray-500">{String(model.level)}</p>
+            )}
           </div>
         </div>
 

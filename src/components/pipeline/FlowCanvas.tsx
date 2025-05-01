@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from "uuid";
 import NodeModal from "./NodeModal";
 import { CustomAiNode } from "./CustomNodes";
 import "reactflow/dist/style.css";
-import { AiNodeData } from "@/types/workflow";
+import { ActionNode, AiNodeData } from "@/types/workflow";
 import { loadWorkflow, saveWorkflow } from "@/utils/workflowUtils";
 import { Model } from "@/types/aiModels";
 import Save from "@/assets/icons/Save";
@@ -100,7 +100,7 @@ const FlowCanvas = () => {
   //   setIsModalOpen(false);
   // };
 
-  const handleAddNode = (model: Model) => {
+  const handleAddNode = (model: Model | ActionNode) => {
     const newNodeId = uuidv4();
     const isFirstNode = nodes.length === 0;
   
