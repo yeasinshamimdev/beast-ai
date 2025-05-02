@@ -1,9 +1,10 @@
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +32,7 @@ const LoginPage = () => {
     e.preventDefault();
     if (validate()) {
       login(1);
+      navigate("/");
     }
   };
 
@@ -44,7 +46,7 @@ const LoginPage = () => {
         </div>
 
         {/* Google Login */}
-        <button className="w-full flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md py-2 mb-4 bg-black dark:bg-white text-white dark:text-black hover:opacity-90 transition">
+        <button className="w-full flex items-center justify-center gap-2 border border-gray-300 dark:border-gray-600 rounded-md py-2 mb-4 bg-black dark:bg-white text-white dark:text-black hover:opacity-90 transition cursor-pointer">
           <FaGoogle /> <span> Login with Google</span>
         </button>
 
