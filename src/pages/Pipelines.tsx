@@ -43,7 +43,7 @@ function Pipelines() {
   };
 
   return (
-    <div className="p-4">
+    <div className="p-4 pt-3">
       <div className="flex items-center justify-between gap-4 w-full bg-white dark:bg-black">
         <div>
           <h2 className="md:text-xl text-lg font-semibold dark:text-white text-black">
