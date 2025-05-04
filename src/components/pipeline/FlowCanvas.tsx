@@ -1,28 +1,27 @@
-import React, { useEffect, useState, useCallback } from "react";
+import Save from "@/assets/icons/Save";
+import { useWorkflowModelStore } from "@/store/useNodeModel";
+import { Model } from "@/types/aiModels";
+import { ActionNode, AiNodeData } from "@/types/workflow";
+import React, { useCallback, useEffect, useState } from "react";
+import { LuChevronLeft, LuCircleFadingPlus } from "react-icons/lu";
+import { useParams } from "react-router";
 import ReactFlow, {
   addEdge,
-  useNodesState,
-  useEdgesState,
   Background,
-  Controls,
-  MiniMap,
   Connection,
+  Controls,
   Edge,
+  MiniMap,
   Node,
-  NodeMouseHandler,
+  useEdgesState,
+  useNodesState,
   XYPosition,
 } from "reactflow";
-import { v4 as uuidv4 } from "uuid";
-import NodeModal from "./NodeModal";
-import { CustomAiNode } from "./CustomNodes";
 import "reactflow/dist/style.css";
-import { ActionNode, AiNodeData } from "@/types/workflow";
-import { loadWorkflow, saveWorkflow } from "@/utils/workflowUtils";
-import { Model } from "@/types/aiModels";
-import Save from "@/assets/icons/Save";
-import { LuChevronLeft, LuCircleFadingPlus } from "react-icons/lu";
+import { v4 as uuidv4 } from "uuid";
+import { CustomAiNode } from "./CustomNodes";
 import NodeContextMenu from "./NodeContextMenu";
-import { useParams } from "react-router";
+import NodeModal from "./NodeModal";
 import Panel from "./Panel";
 import Toast from "../common/Toast";
 
@@ -70,6 +69,7 @@ const calculateNodePosition = (
 
 const FlowCanvas: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { workflows, setWorkflows } = useWorkflowModelStore();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<AiNodeData>>(
     []
   ) as unknown as [
@@ -77,6 +77,7 @@ const FlowCanvas: React.FC = () => {
     React.Dispatch<React.SetStateAction<Node<AiNodeData>[]>>,
     (changes: any) => void
   ];
+
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [parentNode, setParentNode] = useState<Node<AiNodeData> | null>(null);
@@ -89,6 +90,7 @@ const FlowCanvas: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<Node<AiNodeData> | null>(
     null
   );
+
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
   const [toast, setToast] = useState<{
     message: string;
@@ -101,7 +103,7 @@ const FlowCanvas: React.FC = () => {
   useEffect(() => {
     if (id) {
       try {
-        const saved = loadWorkflow(id);
+        const saved = workflows?.find((flow) => flow?.id === id);
         if (saved) {
           // Use type assertion to handle the TypeScript issue
           setNodes(saved.nodes as any);
@@ -242,10 +244,11 @@ const FlowCanvas: React.FC = () => {
     }
 
     try {
-      const existing = loadWorkflow(id);
+      const existing = workflows?.find((flow) => flow?.id === id);
       const now = new Date().toLocaleString();
 
       const workflowData = {
+        id: id,
         nodes,
         edges,
         title,
@@ -253,8 +256,7 @@ const FlowCanvas: React.FC = () => {
         updatedAt: now,
         isActive: existing?.isActive || false,
       };
-
-      saveWorkflow(id, workflowData);
+      setWorkflows(workflowData);
       setToast({
         message: "Workflow saved successfully",
         type: "success",
