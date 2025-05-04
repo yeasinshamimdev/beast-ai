@@ -95,10 +95,10 @@ const Sidebar = () => {
             {/* Account Links */}
             <div className="flex flex-col items-center gap-1 h-full justify-center lg:justify-end">
               <h3 className="font-medium text-lg self-start">Account</h3>
-              <div className="w-full flex items-center dark:bg-[#ffffff13] dark:hover:bg-[#ffffff22] cursor-pointer">
+              <div className="w-full flex items-center">
                 <button
                   onClick={logout}
-                  className="relative cursor-pointer flex items-center gap-2 text-base font-medium whitespace-nowrap border p-2 rounded-md w-full overflow-hidden"
+                  className="relative cursor-pointer dark:bg-[#ffffff13] dark:hover:bg-[#ffffff22] flex items-center gap-2 text-base font-medium whitespace-nowrap border p-2 rounded-md w-full overflow-hidden"
                 >
                   <BiLogOut size={18} />
                   <span>Logout</span>
@@ -131,8 +131,8 @@ const SidebarNavLink = ({
       className={({ isActive }: { isActive: boolean }) =>
         `relative flex items-center gap-2 text-base font-medium whitespace-nowrap border p-2 transition-all duration-300 ease-in-out rounded-md w-full overflow-hidden ${
           isActive
-            ? "dark:border-white dark:bg-[#ffffff4a] bg-[#0303033a]"
-            : "dark:border-gray-100 dark:hover:border-gray-100 dark:hover:bg-[#ffffff2f] hover:bg-[#2c2b2b4c]"
+            ? "dark:border-white dark:bg-[#ffffff4a] bg-[#0303032a]"
+            : "dark:border-gray-100 dark:hover:border-gray-100 dark:hover:bg-[#ffffff2f] hover:bg-[#3a39392a]"
         }`
       }
     >
