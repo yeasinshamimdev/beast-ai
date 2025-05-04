@@ -1,5 +1,5 @@
 import { actionNodes } from "@/constants/actionNodes";
-import { NodeIcons } from "@/constants/typeStyle";
+import { NodeIcons } from "@/constants/typeStyle"; 
 import { useFetchModels } from "@/hooks/api/useFetchModels";
 import { useModelStore } from "@/store/useModelStore";
 import { Model } from "@/types/aiModels";
@@ -8,7 +8,6 @@ import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 import { FaRegQuestionCircle, FaSearch, FaRedo } from "react-icons/fa";
 
-
 interface NodeModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -16,7 +15,6 @@ interface NodeModalProps {
 }
 
 const TABS = ["API", "Action"];
-
 
 const NodeModal: React.FC<NodeModalProps> = ({ isOpen, onClose, onSelect }) => {
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -147,7 +145,8 @@ const ModelsComponent: React.FC<ModelsComponentProps> = ({
   );
 
   const isLoading = isPending || isFetching;
-  const isErrorState = isError || error;
+  const isErrorState = isError || error; 
+
 
   if (isErrorState) {
     return (
@@ -198,9 +197,9 @@ const ModelsComponent: React.FC<ModelsComponentProps> = ({
 
   return (
     <div className="space-y-2.5 px-4 pb-4 overflow-y-auto">
-      {filteredModels.map((model, idx: number) => (
+      {filteredModels?.map((model, idx: number) => (
         <div
-          onClick={() => onSelect(model)}
+          onClick={() => onSelect(model)} 
           key={idx}
           className="flex items-center gap-4 p-3 border border-gray-200 shadow rounded-md cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
         >
