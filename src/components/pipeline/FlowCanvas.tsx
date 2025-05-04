@@ -1,32 +1,33 @@
-import React, { useEffect, useState, useCallback } from "react";
+import Save from "@/assets/icons/Save";
+import { useWorkflowModelStore } from "@/store/useNodeModel";
+import { Model } from "@/types/aiModels";
+import { ActionNode, AiNodeData } from "@/types/workflow";
+import React, { useCallback, useEffect, useState } from "react";
+import { LuChevronLeft, LuCircleFadingPlus } from "react-icons/lu";
+import { useParams } from "react-router";
 import ReactFlow, {
   addEdge,
-  useNodesState,
-  useEdgesState,
   Background,
-  Controls,
-  MiniMap,
   Connection,
+  Controls,
   Edge,
+  MiniMap,
   Node,
+  useEdgesState,
+  useNodesState,
 } from "reactflow";
-import { v4 as uuidv4 } from "uuid";
-import NodeModal from "./NodeModal";
-import { CustomAiNode } from "./CustomNodes";
 import "reactflow/dist/style.css";
-import { ActionNode, AiNodeData } from "@/types/workflow";
-import { loadWorkflow, saveWorkflow } from "@/utils/workflowUtils";
-import { Model } from "@/types/aiModels";
-import Save from "@/assets/icons/Save";
-import { LuChevronLeft, LuCircleFadingPlus } from "react-icons/lu";
+import { v4 as uuidv4 } from "uuid";
+import { CustomAiNode } from "./CustomNodes";
 import NodeContextMenu from "./NodeContextMenu";
-import { useParams } from "react-router";
+import NodeModal from "./NodeModal";
 import Panel from "./Panel";
 
 const nodeTypes = { aiNode: CustomAiNode };
 
 const FlowCanvas = () => {
   const { id } = useParams<{ id: string }>();
+  const { workflows, setWorkflows } = useWorkflowModelStore();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<AiNodeData>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,12 +38,14 @@ const FlowCanvas = () => {
     nodeId: string;
   } | null>(null);
   const [title, setTitle] = useState<string>("");
-  const [selectedNode, setSelectedNode] = useState<Node<AiNodeData> | null>(null);
+  const [selectedNode, setSelectedNode] = useState<Node<AiNodeData> | null>(
+    null
+  );
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   useEffect(() => {
     if (id) {
-      const saved = loadWorkflow(id);
+      const saved = workflows?.find((flow) => flow?.id === id);
       if (saved) {
         setNodes(saved.nodes as any);
         setEdges(saved.edges);
@@ -103,23 +106,23 @@ const FlowCanvas = () => {
   const handleAddNode = (model: Model | ActionNode) => {
     const newNodeId = uuidv4();
     const isFirstNode = nodes.length === 0;
-  
+
     // Calculate position based on parent node or last node
     let newPosition = { x: 100, y: 100 }; // Default position
-  
+
     if (parentNode) {
       // Find all nodes connected to the parent to determine rightmost position
       const connectedNodes = edges
-        .filter(edge => edge.source === parentNode.id)
-        .map(edge => nodes.find(node => node.id === edge.target))
+        .filter((edge) => edge.source === parentNode.id)
+        .map((edge) => nodes.find((node) => node.id === edge.target))
         .filter(Boolean) as unknown as Node<AiNodeData>[];
-  
+
       // Get the rightmost position of connected nodes
       const rightmostX = connectedNodes.reduce(
         (maxX, node) => Math.max(maxX, node.position.x),
         parentNode.position.x
       );
-  
+
       // Position new node to the right of the rightmost connected node
       newPosition = {
         x: rightmostX + 300, // Fixed horizontal spacing
@@ -133,7 +136,7 @@ const FlowCanvas = () => {
         y: lastNode.position.y + 150,
       };
     }
-  
+
     const newNode: Node<AiNodeData> = {
       id: newNodeId,
       type: "aiNode",
@@ -144,10 +147,10 @@ const FlowCanvas = () => {
         isTrigger: isFirstNode,
       },
     };
-  
+
     setNodes((nds) => [...nds, newNode] as any);
     setParentNode(newNode);
-  
+
     if (parentNode) {
       const newEdge: Edge = {
         id: uuidv4(),
@@ -157,7 +160,7 @@ const FlowCanvas = () => {
       };
       setEdges((eds) => [...eds, newEdge]);
     }
-  
+
     setIsModalOpen(false);
   };
   const onConnect = useCallback(
@@ -172,10 +175,11 @@ const FlowCanvas = () => {
 
   const saveCurrentWorkflow = () => {
     if (id) {
-      const existing = loadWorkflow(id);
+      const existing = workflows?.find((flow) => flow?.id === id);
       const now = new Date().toLocaleString();
 
       const workflowData = {
+        id: id,
         nodes: nodes as any,
         edges,
         title,
@@ -184,7 +188,7 @@ const FlowCanvas = () => {
         isActive: existing?.isActive || false,
       };
 
-      saveWorkflow(id, workflowData);
+      setWorkflows(workflowData);
       alert("Workflow saved!");
       window.history.back();
     }
