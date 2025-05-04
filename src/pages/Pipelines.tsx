@@ -1,4 +1,10 @@
-import { useEffect, useState } from "react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { useWorkflowModelStore } from "@/store/useNodeModel";
+import { useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import { FaLayerGroup, FaRegQuestionCircle } from "react-icons/fa";
 import { FiMoreVertical } from "react-icons/fi";
@@ -7,34 +13,15 @@ import { v4 as uuidv4 } from "uuid";
 
 interface WorkflowMeta {
   id: string;
-  name: string;
+  title: string;
   createdAt: string;
   updatedAt: string;
   isActive: boolean;
 }
 
 function Pipelines() {
-  const [workflows, setWorkflows] = useState<WorkflowMeta[]>([]);
+  const { workflows, removeAllWorkflow } = useWorkflowModelStore();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const keys = Object.keys(localStorage).filter((key) =>
-      key.startsWith("workflow_")
-    );
-
-    const loadedWorkflows: WorkflowMeta[] = keys.map((key) => {
-      const workflow = JSON.parse(localStorage.getItem(key) || "{}");
-      return {
-        id: key.replace("workflow_", ""),
-        name: workflow.title,
-        createdAt: workflow.createdAt,
-        updatedAt: workflow.updatedAt,
-        isActive: workflow.isActive,
-      };
-    });
-
-    setWorkflows(loadedWorkflows);
-  }, []);
 
   const handleNavigation = () => {
     const rawUuid = uuidv4();
@@ -61,8 +48,18 @@ function Pipelines() {
           <span className="hidden md:block">Create pipeline</span>
         </button>
       </div>
+      <div className="flex justify-end mt-2">
+        {workflows?.length > 0 && (
+          <button
+            className="border border-red-400 rounded-md font-medium cursor-pointer hover:bg-red-50 px-4 py-1"
+            onClick={() => removeAllWorkflow()}
+          >
+            Delete All
+          </button>
+        )}
+      </div>
       {
-        <div className="my-10 flex flex-col gap-4 w-full overflow-hidden">
+        <div className="mb-10 mt-6 flex flex-col gap-4 w-full overflow-hidden">
           {workflows?.length > 0 ? (
             workflows.map((workflow) => (
               <PipelineCard key={workflow.id} workflow={workflow} />
@@ -96,19 +93,11 @@ interface PipelineCardProps {
 const PipelineCard: React.FC<PipelineCardProps> = ({ workflow }) => {
   const [isActive, setIsActive] = useState<boolean>(workflow.isActive);
   const navigate = useNavigate();
+  const { toggleActive, removeSingleWorkFlow } = useWorkflowModelStore();
 
   // Update localStorage when toggling active state
-  const toggleActive = () => {
-    const stored = localStorage.getItem(`workflow_${workflow.id}`);
-    if (stored) {
-      const updatedWorkflow = JSON.parse(stored);
-      updatedWorkflow.isActive = !isActive;
-      updatedWorkflow.updatedAt = new Date().toLocaleString();
-      localStorage.setItem(
-        `workflow_${workflow.id}`,
-        JSON.stringify(updatedWorkflow)
-      );
-    }
+  const toggleActiveBar = () => {
+    toggleActive(workflow.id);
     setIsActive(!isActive);
   };
 
@@ -117,19 +106,19 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ workflow }) => {
   };
 
   return (
-    <div className="p-4 cursor-pointer flex md:flex-row flex-col items-start md:items-center justify-between w-full bg-white border border-gray-200 rounded-md shadow-sm relative">
+    <div className="p-4 flex md:flex-row flex-col items-start md:items-center justify-between w-full bg-white border border-gray-200 rounded-md shadow-sm relative">
       {/* Left Side */}
       <div className="flex justify-between w-full">
-        <div onClick={handleNavigate}>
+        <div onClick={handleNavigate} className="cursor-pointer">
           <h3 className="text-md md:text-lg font-semibold text-gray-800">
-            {workflow.name}
+            {workflow.title}
           </h3>
           <p className="text-xs md:text-sm text-gray-500">
             Last updated {workflow.updatedAt} | Created {workflow.createdAt}
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <div className="mt-6 md:mt-0">
+          <div className="mt-6 md:mt-0 cursor-pointer">
             <span className="text-xs md:text-sm mb-1 text-gray-500 md:hidden block">
               {isActive ? "Active" : "Inactive"}
             </span>
@@ -137,7 +126,7 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ workflow }) => {
               <input
                 type="checkbox"
                 checked={isActive}
-                onChange={toggleActive}
+                onChange={toggleActiveBar}
                 className="sr-only peer"
               />
               <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:bg-blue-600"></div>
@@ -146,7 +135,10 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ workflow }) => {
           </div>
         </div>
       </div>
-      <FiMoreVertical className="text-gray-500 cursor-pointer md:hidden block absolute top-3 right-3" />
+      <FiMoreVertical
+        size={20}
+        className="text-gray-500 cursor-pointer md:hidden block absolute top-3 right-3"
+      />
 
       {/* Right Side */}
       <div className="flex items-center md:space-x-4 mt-2 md:mt-0">
@@ -164,14 +156,28 @@ const PipelineCard: React.FC<PipelineCardProps> = ({ workflow }) => {
           <input
             type="checkbox"
             checked={isActive}
-            onChange={toggleActive}
+            onChange={toggleActiveBar}
             className="sr-only peer"
           />
           <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-2 peer-focus:ring-blue-500 peer-checked:bg-blue-600"></div>
           <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform transform peer-checked:translate-x-5"></div>
         </label>
-
-        <FiMoreVertical className="text-gray-500 cursor-pointer hidden md:block" />
+        <Popover>
+          <PopoverTrigger>
+            <FiMoreVertical
+              size={24}
+              className="text-gray-500 cursor-pointer hidden md:block"
+            />
+          </PopoverTrigger>
+          <PopoverContent className="w-fit pt-2 border-0 shadow-none">
+            <button
+              className="border border-red-400 rounded-md font-medium cursor-pointer text-base hover:bg-red-50 px-4 py-1"
+              onClick={() => removeSingleWorkFlow(workflow.id)}
+            >
+              Delete
+            </button>
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );

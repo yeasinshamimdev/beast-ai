@@ -1,4 +1,4 @@
-import { Node, Edge } from "reactflow";
+import { Edge, Node } from "reactflow";
 import { Model } from "./aiModels";
 export interface ActionNode {
   output_type: "wait" | "output_sender" | "button" | "preview";
@@ -16,6 +16,7 @@ export interface AiNodeData {
 }
 
 export interface WorkflowData {
+  id: string;
   nodes: Node<AiNodeData>[];
   edges: Edge[];
   title: string;
