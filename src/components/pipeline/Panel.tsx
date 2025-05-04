@@ -4,6 +4,8 @@ import { useEffect, useRef } from "react";
 import { Node } from "reactflow"; // Ensure this import matches your library or type definition
 import PanelContent from "./PanelContent";
 import { Model } from "@/types/aiModels";
+import Save from "@/assets/icons/Save";
+import { BiTrash } from "react-icons/bi";
 
 interface PanelProps {
   isOpen: boolean;
@@ -55,7 +57,7 @@ const Panel: React.FC<PanelProps> = ({
       <div
         ref={panelRef}
         className={clsx(
-          "fixed top-[76px] h-[calc(100vh-80px)] w-[300px] md:w-[400px] bg-white border-t border-l border-gray-200 shadow-lg p-4 z-50 transition-all duration-300 ease-in-out",
+          "fixed top-0 h-[calc(100vh)] w-[300px] md:w-[400px] bg-white border-t border-l border-gray-200 shadow-lg px-4 pt-4 z-50 transition-all duration-300 ease-in-out",
           {
             "right-0": isOpen,
             "-right-[420px]": !isOpen,
@@ -66,12 +68,19 @@ const Panel: React.FC<PanelProps> = ({
 
        {selectedNode && <PanelContent model={selectedNode?.data?.config as Model}/>}
 
+        <div className="flex items-center gap-2">
+        <button 
+          className="bg-black flex items-center justify-center gap-2 text-white px-4 py-2 rounded hover:bg-gray-800 transition w-full cursor-pointer"
+        >
+          <Save size={20}/> <span className="font-medium">Save settings</span>
+        </button>
         <button
           onClick={handleDelete}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition w-full cursor-pointer"
+          className="bg-red-500 flex items-center justify-center gap-2 text-white px-4 py-2 rounded hover:bg-red-600 transition w-full cursor-pointer"
         >
-          Delete Node
+         <BiTrash size={20}/> <span className="font-medium">Delete Node</span>
         </button>
+        </div>
       </div>
     </>
   );
