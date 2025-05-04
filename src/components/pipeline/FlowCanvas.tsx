@@ -13,17 +13,18 @@ import ReactFlow, {
   Edge,
   MiniMap,
   Node,
+  NodeMouseHandler,
   useEdgesState,
   useNodesState,
   XYPosition,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { v4 as uuidv4 } from "uuid";
+import Toast from "../common/Toast";
 import { CustomAiNode } from "./CustomNodes";
 import NodeContextMenu from "./NodeContextMenu";
 import NodeModal from "./NodeModal";
 import Panel from "./Panel";
-import Toast from "../common/Toast";
 
 // Define node types
 const nodeTypes = { aiNode: CustomAiNode };
@@ -38,7 +39,7 @@ const calculateNodePosition = (
   if (nodes.length === 0) {
     return { x: 100, y: 100 };
   }
- 
+
   if (parentNode) {
     // Find all nodes connected to the parent
     const connectedNodes = edges
@@ -97,7 +98,7 @@ const FlowCanvas: React.FC = () => {
     type: "success" | "error" | "info";
   } | null>(null);
 
-  console.log(nodes)
+  console.log(nodes);
 
   // Load workflow when component mounts
   useEffect(() => {
