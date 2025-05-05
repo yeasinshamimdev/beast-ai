@@ -87,7 +87,7 @@ const FlowCanvas: React.FC = () => {
     y: number;
     nodeId: string;
   } | null>(null);
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState<string>("Untitled workflow");
   const [selectedNode, setSelectedNode] = useState<Node<AiNodeData> | null>(
     null
   );
@@ -294,7 +294,7 @@ const FlowCanvas: React.FC = () => {
           type="text"
           placeholder="Untitled workflow"
           value={title}
-          className="hover:bg-gray-50 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer focus:outline-none"
+          className="hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 focus:outline-none"
           aria-label="Workflow title"
         />
       </div>
