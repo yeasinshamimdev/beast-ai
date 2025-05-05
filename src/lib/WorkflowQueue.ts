@@ -3,6 +3,14 @@ import { NodeType } from "@/types/queue";
 import { AiNodeData } from "@/types/workflow";
 import { Edge, Node } from "reactflow";
 
+// This is a custom workflow queue class that manages the execution of nodes in a workflow.
+// It handles the registration of node executors, execution of nodes, and the management of the workflow state.
+// The class is designed to be flexible and allows for the addition of custom node types and their corresponding execution logic.
+// The WorkflowQueue class is initialized with a set of nodes and edges, and it provides methods to start, stop, pause, and resume the workflow execution.
+// It also includes methods to register custom executors for specific node types, allowing users to define their own execution logic.
+// The class uses Zustand for state management, allowing for a reactive and efficient way to manage the workflow state.
+// The WorkflowQueue class is designed to be extensible, allowing users to add new node types and their corresponding execution logic easily.
+
 type NodeExecutor = (node: Node<AiNodeData>, input?: any) => Promise<any>;
 
 class WorkflowQueue {
@@ -26,9 +34,24 @@ class WorkflowQueue {
   }
 
   // --- Public API ---
+  // Register custom executor for a node type
+  // This allows users to define their own execution logic for specific node types
+  // The executor function should return a Promise
   public registerExecutor(type: NodeType, executor: NodeExecutor): void {
     this.nodeExecutors.set(type, executor);
   }
+
+  /* Start the workflow execution
+   The start method initializes the workflow state and begins executing nodes
+   It can optionally take a startNodeId to specify which node to start from
+   If no startNodeId is provided, it will look for a trigger node to start the execution
+   The start method also handles the case where the workflow is already running
+   If the workflow is already running, it will log a warning and return
+   If a startNodeId is provided, it will check if the node exists
+   If the node does not exist, it will log an error and return
+   If a trigger node is found, it will start executing from that node
+   The start method also resets the workflow state before starting the execution
+   It sets the isRunning state to true and clears any previous results */
 
   public async start(startNodeId?: string): Promise<void> {
     if (this.store.getState().workflowState.isRunning) {
@@ -68,19 +91,43 @@ class WorkflowQueue {
     await this.processQueue();
   }
 
-  
+  // --- Pause/Resume API ---
+  public pause(): void {
+    if (!this.store.getState().workflowState.isRunning) {
+      console.warn("Cannot pause - workflow not running");
+      return;
+    }
+    this.store.getState().updateState({ isPaused: true });
+  }
+
+  public async resume(): Promise<void> {
+    if (!this.store.getState().workflowState.isPaused) {
+      console.warn("Cannot resume - workflow not paused");
+      return;
+    }
+    this.store.getState().updateState({ isPaused: false });
+    await this.processQueue(); // Continue execution
+  }
+
+  // --- Modified stop method ---
   public stop(): void {
     const executionTime = Date.now() - this.executionStartTime;
     this.store.getState().updateState({
       isRunning: false,
+      isPaused: false, // Reset pause state on stop
       queue: [],
       executionTime,
     });
   }
- 
   // --- Core Execution Logic ---
   private async processQueue(): Promise<void> {
     const { workflowState } = this.store.getState();
+
+    // Check for pause state
+    while (workflowState.isPaused) {
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Check every 100ms
+    }
+
     if (!workflowState.isRunning || workflowState.queue.length === 0) {
       this.stop();
       return;
@@ -89,7 +136,6 @@ class WorkflowQueue {
     const nextNodeId = workflowState.queue[0];
     await this.executeNode(nextNodeId);
 
-    // Process next in queue (recursive)
     if (this.store.getState().workflowState.queue.length > 0) {
       await this.processQueue();
     }
@@ -175,7 +221,13 @@ class WorkflowQueue {
     node: Node<AiNodeData>,
     inputs: any[]
   ): Promise<any> {
-    return { preview: inputs[0] ?? null };
+    const data = {
+      preview: inputs[0] ?? null,
+      key: node.data.config.parameters?.key ?? null,
+      source: node.data.config.parameters?.source ?? null,
+      id: node.id,
+    };
+    return data ?? null;
   }
 
   private async executeButtonNode(node: Node<AiNodeData>): Promise<any> {
@@ -192,25 +244,31 @@ class WorkflowQueue {
   ): Promise<any> {
     const config = node.data.config;
     try {
-      console.log(config, inputs);
-      //   const response = await fetch(config?.parameters.endpoint, {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       'Authorization': `Bearer ${config?.parameters.api_key}`
-      //     },
-      //     body: JSON.stringify({
-      //       model: config.parameters.model,
-      //       prompt: inputs[0]?.prompt || config.parameters.prompt
-      //     })
-      //   });
-      //   return await response.json();
-    } catch (error) {
-      throw new Error(
-        `API call failed: ${
-          error instanceof Error ? error.message : String(error)
-        }`
+      const response = await fetch(
+        `https://beast-ai-api-production.up.railway.app/v1/api/ai/models/${config.id}/run`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            parameters: {
+              ...config.parameters,
+              // Include inputs from previous nodes
+              input: inputs.length > 0 ? inputs[0] : undefined,
+            },
+          }),
+        }
       );
+
+      if (!response.ok) {
+        throw new Error(`API error: ${response.statusText}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("API call failed:", error);
+      throw new Error(`Failed to execute node ${node.id}`);
     }
   }
 }

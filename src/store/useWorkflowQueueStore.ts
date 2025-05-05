@@ -1,7 +1,7 @@
 import { QueueState } from '@/types/queue';
 import { create } from 'zustand';
 
-interface WorkflowStore {
+interface WorkflowStore { 
   workflowState: QueueState;
   updateState: (newState: Partial<QueueState>) => void;
   resetState: () => void;
@@ -15,6 +15,7 @@ export const useWorkflowQueueStore = create<WorkflowStore>((set) => ({
     queue: [],
     error: null,
     executionTime: 0,
+    isPaused: false,
   },
   updateState: (newState) => 
     set((state) => ({ 
@@ -29,6 +30,7 @@ export const useWorkflowQueueStore = create<WorkflowStore>((set) => ({
         queue: [],
         error: null,
         executionTime: 0,
+        isPaused: false,
       }
     }),
 }));
