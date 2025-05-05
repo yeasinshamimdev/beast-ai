@@ -25,6 +25,10 @@ import { CustomAiNode } from "./CustomNodes";
 import NodeContextMenu from "./NodeContextMenu";
 import NodeModal from "./NodeModal";
 import Panel from "./Panel";
+import { FiZap } from "react-icons/fi";
+import WorkflowQueue from "@/lib/WorkflowQueue";
+import { useWorkflowQueueStore } from "@/store/useWorkflowQueueStore"; 
+import { Spinner } from "../common/Spinner";
 
 // Define node types
 const nodeTypes = { aiNode: CustomAiNode };
@@ -87,7 +91,7 @@ const FlowCanvas: React.FC = () => {
     y: number;
     nodeId: string;
   } | null>(null);
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState<string>("Untitled workflow");
   const [selectedNode, setSelectedNode] = useState<Node<AiNodeData> | null>(
     null
   );
@@ -98,7 +102,36 @@ const FlowCanvas: React.FC = () => {
     type: "success" | "error" | "info";
   } | null>(null);
 
-  console.log(nodes);
+  // New code
+  const [workflowQueue, setWorkflowQueue] = useState<WorkflowQueue | null>(
+    null
+  );
+  const { workflowState } = useWorkflowQueueStore();
+  const { isRunning, isPaused, error } = workflowState;
+
+  console.log(error)
+  // Initialize queue when nodes/edges change
+  useEffect(() => {
+    const queue = new WorkflowQueue(nodes, edges);
+    setWorkflowQueue(queue);
+    return () => queue.stop();
+  }, [nodes, edges]);
+
+  const handleGenerate = async () => {
+    if (!workflowQueue) return;
+
+    try {
+      // Find trigger node or first node
+      const startNode = nodes.find((n) => n.data.isTrigger) || nodes[0];
+      if (!startNode) return;
+
+      await workflowQueue.start(startNode.id);
+    } catch (err) {
+      console.error("Execution failed:", err);
+    }
+  };
+
+  // New code end
 
   // Load workflow when component mounts
   useEffect(() => {
@@ -277,7 +310,7 @@ const FlowCanvas: React.FC = () => {
     setSelectedNode(node);
     setIsPanelOpen(true);
   }, []);
-
+ 
   return (
     <div className="w-full h-[90vh] relative">
       {/* Header with title and back button */}
@@ -294,7 +327,7 @@ const FlowCanvas: React.FC = () => {
           type="text"
           placeholder="Untitled workflow"
           value={title}
-          className="hover:bg-gray-50 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer focus:outline-none"
+          className="hover:bg-gray-50 dark:hover:bg-gray-900 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 focus:outline-none"
           aria-label="Workflow title"
         />
       </div>
@@ -318,6 +351,41 @@ const FlowCanvas: React.FC = () => {
         >
           <Save size={20} />
         </button>
+
+        <button
+          onClick={handleGenerate}
+          disabled={isRunning && !isPaused}
+         className="hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer flex items-center justify-center gap-1"
+        >
+          {isRunning && !isPaused ? <Spinner size="sm" /> : <FiZap />}
+         {isRunning && !isPaused ? "" : "Generate"}
+        </button>
+
+        {/* {isRunning && (
+          <>
+            {isPaused ? (
+              <button
+                onClick={() => workflowQueue?.resume()}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
+              >
+                Resume
+              </button>
+            ) : (
+              <button
+                onClick={() => workflowQueue?.pause()}
+                className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+              >
+                Pause
+              </button>
+            )}
+            <button
+              onClick={() => workflowQueue?.stop()}
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+            >
+              Stop
+            </button>
+          </>
+        )} */}
       </div>
 
       {/* Main ReactFlow canvas */}

@@ -2,8 +2,10 @@ import { Handle, Position, NodeProps } from "reactflow";
 import { AiNodeData } from "@/types/workflow";
 import clsx from "clsx";
 import { typeStyles } from "@/constants/typeStyle";
+import { useWorkflowQueueStore } from "@/store/useWorkflowQueueStore";
+import { Spinner } from "../common/Spinner";
 
-export const CustomAiNode = ({ data }: NodeProps<AiNodeData>) => {
+export const CustomAiNode = ({ data, id }: NodeProps<AiNodeData>) => {
   const { config } = data;
   const category = Array.isArray(config?.output_type)
     ? config?.output_type[0]
@@ -13,13 +15,29 @@ export const CustomAiNode = ({ data }: NodeProps<AiNodeData>) => {
 
   const isFirstNode = data?.isTrigger;
 
+  const { workflowState } = useWorkflowQueueStore();
+  const isExecuting =
+    id === workflowState.currentNode && workflowState.isRunning;
+
   return (
     <div
       className={clsx(
-        "rounded-md px-4 py-3 shadow-md min-w-[100px] max-w-[160px] border border-gray-300 cursor-pointer hover:shadow-lg transition",
+        "rounded-md px-4 py-3 shadow-md min-w-[100px] max-w-[160px] border-2 relative z-10",
+        isExecuting ? styles?.border : "border-gray-200",
         styles.boxBg
       )}
     >
+      {/* Execution indicator */}
+      {isExecuting && (
+        <div className="absolute flex items-center justify-center top-0 left-0 bg-white z-30 opacity-50 w-full h-full">
+          {workflowState?.isPaused ? (
+            <span className="text-yellow-500">⏸</span>
+          ) : (
+            <Spinner size="md" />
+          )}
+        </div>
+      )}
+
       {/* Only show input handle if not trigger */}
       {!isFirstNode && (
         <Handle

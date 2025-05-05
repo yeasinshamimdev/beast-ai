@@ -13,4 +13,5 @@ export interface QueueState {
   queue: string[];
   error: string | null;
   executionTime: number;
+  isPaused: boolean;
 }

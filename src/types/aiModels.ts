@@ -26,6 +26,7 @@ export interface ModelBase {
   name: string;
   output_type: "text" | "image" | "voice" | "audio" | "video" | string[];
   provider: string;
+  id?:string
 }
 
 export interface ModelWithParameters extends ModelBase {
