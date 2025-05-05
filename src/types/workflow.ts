@@ -7,6 +7,7 @@ export interface ActionNode {
   parameters?: {
     [key: string]: any;
   };
+  id?:string
 }
 
 export interface AiNodeData {
