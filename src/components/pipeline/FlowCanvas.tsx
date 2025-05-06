@@ -1,5 +1,5 @@
 import Save from "@/assets/icons/Save";
-import { useWorkflowModelStore } from "@/store/useNodeModel";
+import { useWorkflowModelStore } from "@/store/useWorkflowsStorel";
 import { Model } from "@/types/aiModels";
 import { ActionNode, AiNodeData } from "@/types/workflow";
 import React, { useCallback, useEffect, useState } from "react";
@@ -27,7 +27,7 @@ import NodeModal from "./NodeModal";
 import Panel from "./Panel";
 import { FiZap } from "react-icons/fi";
 import WorkflowQueue from "@/lib/WorkflowQueue";
-import { useWorkflowQueueStore } from "@/store/useWorkflowQueueStore"; 
+import { useWorkflowQueueStore } from "@/store/useWorkflowQueueStore";
 import { Spinner } from "../common/Spinner";
 
 // Define node types
@@ -96,6 +96,8 @@ const FlowCanvas: React.FC = () => {
     null
   );
 
+  console.log(nodes);
+
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
   const [toast, setToast] = useState<{
     message: string;
@@ -109,7 +111,7 @@ const FlowCanvas: React.FC = () => {
   const { workflowState } = useWorkflowQueueStore();
   const { isRunning, isPaused, error } = workflowState;
 
-  console.log(error)
+  console.log(error);
   // Initialize queue when nodes/edges change
   useEffect(() => {
     const queue = new WorkflowQueue(nodes, edges);
@@ -182,7 +184,7 @@ const FlowCanvas: React.FC = () => {
   // Delete node and its connections
   const deleteNode = useCallback(
     (nodeId: string) => {
-      setNodes((nds) => nds.filter((node) => node.id !== nodeId));
+      setNodes((nds) => nds.filter((node) => node.id !== nodeId)); 
       setEdges((eds) =>
         eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
       );
@@ -211,7 +213,7 @@ const FlowCanvas: React.FC = () => {
       const newPosition = calculateNodePosition(parentNode, nodes, edges);
 
       const newNode: Node<AiNodeData> = {
-        id: newNodeId,
+        id: newNodeId as string,
         type: "aiNode",
         position: newPosition,
         data: {
@@ -228,7 +230,7 @@ const FlowCanvas: React.FC = () => {
         const newEdge: Edge = {
           id: uuidv4(),
           source: parentNode.id,
-          target: newNodeId,
+          target: newNodeId as string,
           animated: true,
         };
         setEdges((eds) => addEdge(newEdge, eds));
@@ -310,7 +312,7 @@ const FlowCanvas: React.FC = () => {
     setSelectedNode(node);
     setIsPanelOpen(true);
   }, []);
- 
+
   return (
     <div className="w-full h-[90vh] relative">
       {/* Header with title and back button */}
@@ -355,10 +357,10 @@ const FlowCanvas: React.FC = () => {
         <button
           onClick={handleGenerate}
           disabled={isRunning && !isPaused}
-         className="hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer flex items-center justify-center gap-1"
+          className="hover:bg-gray-200 border border-gray-200 shadow transition-all ease-in-out duration-300 rounded-lg p-2 cursor-pointer flex items-center justify-center gap-1"
         >
           {isRunning && !isPaused ? <Spinner size="sm" /> : <FiZap />}
-         {isRunning && !isPaused ? "" : "Generate"}
+          {isRunning && !isPaused ? "" : "Generate"}
         </button>
 
         {/* {isRunning && (

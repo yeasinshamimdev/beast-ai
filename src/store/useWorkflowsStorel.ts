@@ -1,3 +1,4 @@
+ 
 import { WorkflowData } from "@/types/workflow";
 import { createStore, useStore } from "zustand";
 import { persist } from "zustand/middleware";
@@ -15,7 +16,7 @@ type Actions = {
 
 export type NodeModelStore = State & Actions;
 
-export const nodeModelStore = createStore<NodeModelStore>()(
+export const useWorkflowsStore = createStore<NodeModelStore>()(
   persist(
     (set) => ({
       workflows: [],
@@ -72,4 +73,4 @@ export const nodeModelStore = createStore<NodeModelStore>()(
   )
 );
 
-export const useWorkflowModelStore = () => useStore(nodeModelStore);
+export const useWorkflowModelStore = () => useStore(useWorkflowsStore);
