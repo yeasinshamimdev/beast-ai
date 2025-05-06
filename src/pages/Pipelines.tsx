@@ -3,7 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useWorkflowModelStore } from "@/store/useNodeModel";
+import { useWorkflowModelStore } from "@/store/useWorkflowsStorel";
 import { useState } from "react";
 import { BiPlus } from "react-icons/bi";
 import { FaLayerGroup, FaRegQuestionCircle } from "react-icons/fa";
