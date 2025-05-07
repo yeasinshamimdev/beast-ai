@@ -4,10 +4,12 @@ export interface ActionNode {
   output_type: "wait" | "output_sender" | "button" | "preview";
   name: string;
   label?: string;
+  logo?: string;
   parameters?: {
     [key: string]: any;
   };
-  id?:string
+  id?: string;
+  provider?: string;
 }
 
 export interface AiNodeData {

@@ -2,138 +2,87 @@ import Save from "@/assets/icons/Save";
 import { useWorkflowModelStore } from "@/store/useWorkflowsStorel";
 import { Model } from "@/types/aiModels";
 import { ActionNode, AiNodeData } from "@/types/workflow";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { LuChevronLeft, LuCircleFadingPlus } from "react-icons/lu";
 import { useParams } from "react-router";
 import ReactFlow, {
   addEdge,
+  applyNodeChanges,
   Background,
   Connection,
   Controls,
   Edge,
   MiniMap,
   Node,
-  NodeMouseHandler,
+  NodeChange,
   useEdgesState,
   useNodesState,
-  XYPosition,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { v4 as uuidv4 } from "uuid";
 import Toast from "../common/Toast";
 import { CustomAiNode } from "./CustomNodes";
-import NodeContextMenu from "./NodeContextMenu";
 import NodeModal from "./NodeModal";
 import Panel from "./Panel";
 import { FiZap } from "react-icons/fi";
 import WorkflowQueue from "@/lib/WorkflowQueue";
 import { useWorkflowQueueStore } from "@/store/useWorkflowQueueStore";
 import { Spinner } from "../common/Spinner";
+import { AINodeProcessedData, useNodeModelsStore } from "@/store/useNodeModels";
+import {
+  calculateNodePosition,
+  checkNodeType,
+  processParameters,
+} from "@/lib/handlerHealper";
 
 // Define node types
 const nodeTypes = { aiNode: CustomAiNode };
 
-// Node positioning utilities
-const calculateNodePosition = (
-  parentNode: Node<AiNodeData> | null,
-  nodes: Node<AiNodeData>[],
-  edges: Edge[]
-): XYPosition => {
-  // Default position for the first node
-  if (nodes.length === 0) {
-    return { x: 100, y: 100 };
-  }
-
-  if (parentNode) {
-    // Find all nodes connected to the parent
-    const connectedNodes = edges
-      .filter((edge) => edge.source === parentNode.id)
-      .map((edge) => nodes.find((node) => node.id === edge.target))
-      .filter(Boolean) as Node<AiNodeData>[];
-
-    // Get the rightmost position of connected nodes
-    const rightmostX = connectedNodes.reduce(
-      (maxX, node) => Math.max(maxX, node.position.x),
-      parentNode.position.x
-    );
-
-    // Position new node to the right of the rightmost connected node
-    return {
-      x: rightmostX + 200, // Fixed horizontal spacing
-      y: parentNode.position.y, // Align vertically with parent
-    };
-  } else {
-    // If no parent but nodes exist, place below last node
-    const lastNode = nodes[nodes.length - 1]; // Fixed: use nodes.length - 1 to get the last element
-    return {
-      x: lastNode.position.x,
-      y: lastNode.position.y + 150,
-    };
-  }
-};
-
 const FlowCanvas: React.FC = () => {
+  // React hooks
   const { id } = useParams<{ id: string }>();
-  const { workflows, setWorkflows } = useWorkflowModelStore();
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node<AiNodeData>>(
-    []
-  ) as unknown as [
-    Node<AiNodeData>[],
-    React.Dispatch<React.SetStateAction<Node<AiNodeData>[]>>,
-    (changes: any) => void
-  ];
+  // React hooks end
 
+  // Store hooks
+  const { workflows, setWorkflows } = useWorkflowModelStore();
+  const { workflowState } = useWorkflowQueueStore();
+  const { isRunning, isPaused } = workflowState;
+  const { nodesMap, addNode, deleteNode, updateNode, clearAllNodes } =
+    useNodeModelsStore();
+  // Store hooks end
+
+  // Memoize the nodesMap to avoid unnecessary re-renders
+  const zustandNodes = useMemo(() => Array.from(nodesMap.values()), [nodesMap]);
+
+  // Local States
+  const [nodes, setNodes] = useNodesState<AINodeProcessedData>(
+    zustandNodes as any
+  );
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [parentNode, setParentNode] = useState<Node<AiNodeData> | null>(null);
-  const [contextMenu, setContextMenu] = useState<{
-    x: number;
-    y: number;
-    nodeId: string;
-  } | null>(null);
   const [title, setTitle] = useState<string>("Untitled workflow");
   const [selectedNode, setSelectedNode] = useState<Node<AiNodeData> | null>(
     null
   );
-
-  console.log(nodes);
-
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
   const [toast, setToast] = useState<{
     message: string;
     type: "success" | "error" | "info";
   } | null>(null);
-
-  // New code
   const [workflowQueue, setWorkflowQueue] = useState<WorkflowQueue | null>(
     null
   );
-  const { workflowState } = useWorkflowQueueStore();
-  const { isRunning, isPaused, error } = workflowState;
+  // Local States end
 
-  console.log(error);
+  // useEffect zone
+  // Workflow instance
   // Initialize queue when nodes/edges change
   useEffect(() => {
-    const queue = new WorkflowQueue(nodes, edges);
+    const queue = new WorkflowQueue(nodes as any, edges);
     setWorkflowQueue(queue);
     return () => queue.stop();
   }, [nodes, edges]);
-
-  const handleGenerate = async () => {
-    if (!workflowQueue) return;
-
-    try {
-      // Find trigger node or first node
-      const startNode = nodes.find((n) => n.data.isTrigger) || nodes[0];
-      if (!startNode) return;
-
-      await workflowQueue.start(startNode.id);
-    } catch (err) {
-      console.error("Execution failed:", err);
-    }
-  };
-
-  // New code end
 
   // Load workflow when component mounts
   useEffect(() => {
@@ -155,39 +104,113 @@ const FlowCanvas: React.FC = () => {
       }
     }
   }, [id, setNodes, setEdges]);
+  // useEffect zone end
 
-  // Handle keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Save workflow with Ctrl+S or Command+S
-      if ((event.ctrlKey || event.metaKey) && event.key === "s") {
-        event.preventDefault();
-        saveCurrentWorkflow();
+  // Handler zone
+  // Handle workflow generation
+  const handleGenerate = async () => {
+    if (!workflowQueue) return;
+
+    try {
+      // Find trigger node or first node
+      const startNode = nodes.find((n) => n.data.data?.isTrigger) || nodes[0];
+      if (!startNode) return;
+
+      await workflowQueue.start(startNode.id);
+    } catch (err) {
+      console.error("Execution failed:", err);
+    }
+  };
+
+  // Handle node changes
+  const handleNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      // First apply changes to ReactFlow state
+      setNodes((nds) => applyNodeChanges(changes, nds));
+
+      // Then sync back to Zustand
+      changes.forEach((change) => {
+        if (change.type === "remove") {
+          deleteNode(change.id);
+        } else if (change.type === "position" && !change.dragging) {
+          // Use updateNode instead of updateNodes for single node updates
+          updateNode(change.id, {
+            position: change.position,
+          });
+        }
+      });
+    },
+    [setNodes, deleteNode, updateNode]
+  );
+
+  // Add a new node to the workflow
+  const handleAddNode = useCallback(
+    (model: Model | ActionNode) => {
+      try {
+        const newNodeId = uuidv4();
+        const isFirstNode = nodes?.length === 0;
+        const isActionNode = checkNodeType(model);
+
+        // Process model parameters
+        const processedModel = {
+          ...model,
+          parameters: processParameters(model?.parameters as any),
+        };
+
+        // Create new node
+        const newNode = {
+          id: newNodeId,
+          type: isActionNode ? "actionNode" : "aiNode",
+          position: calculateNodePosition(parentNode) || { x: 110, y: 110 },
+          data: {
+            label: model.name,
+            config: processedModel,
+            isTrigger: isFirstNode,
+          },
+        };
+
+        addNode(newNode as AINodeProcessedData);
+        setNodes((nds) => nds.concat(newNode as any));
+        setParentNode(newNode);
+
+        // Create edge if there's a parent node
+        if (parentNode) {
+          const newEdge: Edge = {
+            id: uuidv4(),
+            source: parentNode.id,
+            target: newNodeId,
+            animated: true,
+          };
+          setEdges((eds) => addEdge(newEdge, eds));
+        }
+
+        // Update UI state
+        setIsModalOpen(false);
+        setToast({
+          message: "Node added successfully",
+          type: "success",
+        });
+      } catch (error) {
+        console.error("Error adding node:", error);
+        setToast({
+          message: `Failed to add node: ${
+            error instanceof Error ? error.message : "Unknown error"
+          }`,
+          type: "error",
+        });
       }
-
-      // Delete selected node with Delete key
-      if (event.key === "Delete" && selectedNode) {
-        deleteNode(selectedNode.id);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedNode]);
-
-  // Handle node context menu
-  const onNodeContextMenu: NodeMouseHandler = useCallback((event, node) => {
-    event.preventDefault();
-    setContextMenu({ x: event.clientX, y: event.clientY, nodeId: node.id });
-  }, []);
+    },
+    [nodes, parentNode, edges, setEdges]
+  );
 
   // Delete node and its connections
-  const deleteNode = useCallback(
+  const handleDeleteNode = useCallback(
     (nodeId: string) => {
-      setNodes((nds) => nds.filter((node) => node.id !== nodeId)); 
+      setNodes((nds) => nds.filter((node) => node.id !== nodeId));
       setEdges((eds) =>
         eds.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
       );
+      deleteNode(nodeId);
 
       // Close panel if the deleted node was selected
       if (selectedNode?.id === nodeId) {
@@ -200,49 +223,7 @@ const FlowCanvas: React.FC = () => {
         type: "info",
       });
     },
-    [setNodes, setEdges, selectedNode]
-  );
-
-  // Add a new node to the workflow
-  const handleAddNode = useCallback(
-    (model: Model | ActionNode) => {
-      const newNodeId = uuidv4();
-      const isFirstNode = nodes?.length === 0;
-
-      // Calculate position using the utility function
-      const newPosition = calculateNodePosition(parentNode, nodes, edges);
-
-      const newNode: Node<AiNodeData> = {
-        id: newNodeId as string,
-        type: "aiNode",
-        position: newPosition,
-        data: {
-          label: model.name,
-          config: model,
-          isTrigger: isFirstNode,
-        },
-      };
-
-      setNodes((nds) => [...nds, newNode] as any);
-      setParentNode(newNode);
-
-      if (parentNode) {
-        const newEdge: Edge = {
-          id: uuidv4(),
-          source: parentNode.id,
-          target: newNodeId as string,
-          animated: true,
-        };
-        setEdges((eds) => addEdge(newEdge, eds));
-      }
-
-      setIsModalOpen(false);
-      setToast({
-        message: "Node added",
-        type: "success",
-      });
-    },
-    [nodes, edges, parentNode, setNodes, setEdges]
+    [setNodes, setEdges, selectedNode?.id]
   );
 
   // Connect nodes
@@ -292,11 +273,15 @@ const FlowCanvas: React.FC = () => {
         updatedAt: now,
         isActive: existing?.isActive || false,
       };
-      setWorkflows(workflowData);
+      setWorkflows(workflowData as any);
       setToast({
         message: "Workflow saved successfully",
         type: "success",
       });
+      setNodes([]);
+      setEdges([]);
+      clearAllNodes();
+      setTitle("Untitled workflow");
       window.history.back();
     } catch (error) {
       console.error("Error saving workflow:", error);
@@ -394,11 +379,10 @@ const FlowCanvas: React.FC = () => {
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
+        onNodesChange={handleNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
         nodeTypes={nodeTypes}
-        onNodeContextMenu={onNodeContextMenu}
         onNodeClick={(_, node) => handleNodeSelect(node as Node<AiNodeData>)}
         fitViewOptions={{ padding: 0.4 }}
         fitView
@@ -416,19 +400,10 @@ const FlowCanvas: React.FC = () => {
         onSelect={handleAddNode}
       />
 
-      {contextMenu && (
-        <NodeContextMenu
-          x={contextMenu.x}
-          y={contextMenu.y}
-          onDelete={() => deleteNode(contextMenu.nodeId)}
-          onClose={() => setContextMenu(null)}
-        />
-      )}
-
       <Panel
         isOpen={isPanelOpen}
         selectedNode={selectedNode}
-        setNodes={setNodes as any}
+        handleDelete={handleDeleteNode}
         onClose={() => setIsPanelOpen(false)}
       />
 
