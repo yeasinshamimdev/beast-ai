@@ -35,7 +35,7 @@ export interface AINodeProcessedData {
 }
 
 // Define a type for your node
-type AINode = Node<{
+export type AINode = Node<{
   label: string;
   config: AINodeConfig;
   isTrigger: boolean;
@@ -53,6 +53,8 @@ interface INodeModelStore {
   addNode: (node: AINode) => void;
   updateNode: (id: string, updates: Partial<AINode>) => void;
   deleteNode: (id: string) => void;
+  updateNodes: (nodes: AINodeProcessedData[]) => void;
+  clearAllNodes: () => void;
 }
 
 type NodeStorePersist = PersistOptions<INodeModelStore, { nodes: AINode[] }>;
@@ -115,25 +117,31 @@ export const useNodeModelsStore = create<INodeModelStore>()(
       },
 
       // Update a node in the Map - O(1) operation
-      updateNode: (id: string, updates: Partial<AINode>) => {
+      updateNode: (id, updates) => {
         set((state) => {
           const existingNode = state.nodesMap.get(id);
-          if (!existingNode) return state; // No change if node doesn't exist
+          if (!existingNode) return state;
 
-          // Create a new Map to ensure reactivity
-          const newMap = new Map(state.nodesMap);
-
-          // Create updated node
           const updatedNode = {
             ...existingNode,
             ...updates,
+            position: updates.position || existingNode.position,
             data: {
               ...existingNode.data,
               ...(updates.data || {}),
             },
           };
 
+          const newMap = new Map(state.nodesMap);
           newMap.set(id, updatedNode);
+          return { nodesMap: newMap };
+        });
+      },
+
+      // Update multiple nodes in the Map - O(n) operation
+      updateNodes: (nodes) => {
+        set(() => {
+          const newMap = new Map(nodes.map((n) => [n.id, n]));
           return { nodesMap: newMap };
         });
       },
@@ -146,6 +154,17 @@ export const useNodeModelsStore = create<INodeModelStore>()(
           newMap.delete(id);
           return { nodesMap: newMap };
         });
+      },
+      clearAllNodes: () => {
+        // Clear from memory
+        set({ nodesMap: new Map() });
+
+        // Optional: Clear from localStorage directly
+        try {
+          localStorage.removeItem("nodes");
+        } catch (error) {
+          console.error("Error clearing localStorage:", error);
+        }
       },
     }),
     {
