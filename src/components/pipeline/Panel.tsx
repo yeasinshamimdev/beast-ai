@@ -22,6 +22,7 @@ const Panel: React.FC<PanelProps> = ({
 }) => {
   const panelRef = useRef<HTMLDivElement | null>(null);
 
+  // useEffect for closing the panel when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
@@ -60,7 +61,10 @@ const Panel: React.FC<PanelProps> = ({
         <h2 className="text-lg font-bold mb-4">Node Settings</h2>
 
         {selectedNode && (
-          <PanelContent model={selectedNode?.data?.config as Model} />
+          <PanelContent
+            model={selectedNode?.data?.config as Model}
+            type={selectedNode?.type as string}
+          />
         )}
 
         <div className="flex items-center gap-2">

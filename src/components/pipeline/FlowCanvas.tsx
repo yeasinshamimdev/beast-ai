@@ -161,7 +161,7 @@ const FlowCanvas: React.FC = () => {
         const newNode = {
           id: newNodeId,
           type: isActionNode ? "actionNode" : "aiNode",
-          position: calculateNodePosition(parentNode),
+          position: calculateNodePosition(parentNode) || { x: 110, y: 110 },
           data: {
             label: model.name,
             config: processedModel,

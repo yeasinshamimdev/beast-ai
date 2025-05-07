@@ -3,6 +3,9 @@ import clsx from "clsx";
 import { Model } from "@/types/aiModels";
 import { ActionNode } from "@/types/workflow";
 import { NodeIcons } from "@/constants/typeStyle";
+import { useModelStore } from "@/store/useModelStore";
+import { useFetchSingleModel } from "@/hooks/api/useFetchModels";
+import { Spinner } from "../common/Spinner";
 
 const formatLabel = (key: unknown): string => {
   if (typeof key !== "string") return String(key);
@@ -14,11 +17,43 @@ const isEditableField = (key: string) =>
 
 interface PanelContentProps {
   model: Model | ActionNode;
+  type: string;
 }
 
-const PanelContent: React.FC<PanelContentProps> = ({ model }) => {
-  const parameters = model?.parameters || {};
+const PanelContent: React.FC<PanelContentProps> = ({ model, type }) => {
 
+  // Check if the model is an action node or AI node
+  const isAINode = type === "aiNode";
+
+  // Fetch the model details
+  const { isError, error, isPending, isFetching } = useFetchSingleModel({
+    modelId: model?.id as string,
+    isAINode,
+  });
+
+  // Get the model data from the store
+  // This will be undefined if the model is not found
+  const { singleModel } = useModelStore();
+
+  // If the model is not found, use the model passed as a prop
+  const parameters = singleModel?.parameters || {};
+
+  // Error state
+  if (isError || error) {
+    return <p>{error?.message || "Failed to load the model"}</p>;
+  }
+
+
+  // Loading state
+  if (isPending || isFetching) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <Spinner size="md" />
+      </div>
+    );
+  }
+
+  // Render the model parameters
   const renderParameterInput = (key: string, value: any) => {
     const safeKey = typeof key === "string" ? key : String(key);
     const label = formatLabel(safeKey);
@@ -158,8 +193,14 @@ const PanelContent: React.FC<PanelContentProps> = ({ model }) => {
         </div>
 
         <div className="grid grid-cols-1 gap-4 mx-0.5">
-          {Object.entries(parameters).map(([key, value]) =>
-            renderParameterInput(key, value)
+          {type === "actionNode" ? (
+            <div>
+              This is an action node. Please select a model from the list.
+            </div>
+          ) : (
+            Object.entries(parameters).map(([key, value]) =>
+              renderParameterInput(key, value)
+            )
           )}
         </div>
       </div>
