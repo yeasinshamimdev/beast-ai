@@ -9,7 +9,7 @@ import { BiTrash } from "react-icons/bi";
 
 interface PanelProps {
   isOpen: boolean;
-  setNodes: React.Dispatch<React.SetStateAction<Array<Node<AiNodeData>>>>;
+  handleDelete: (nodeId: string) => void;
   onClose: () => void;
   selectedNode: Node<AiNodeData> | null;
 }
@@ -17,7 +17,7 @@ interface PanelProps {
 const Panel: React.FC<PanelProps> = ({
   isOpen,
   selectedNode,
-  setNodes,
+  handleDelete,
   onClose,
 }) => {
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -39,13 +39,6 @@ const Panel: React.FC<PanelProps> = ({
     };
   }, [isOpen, onClose]);
 
-  // Handle delete node
-  const handleDelete = () => {
-    if (!selectedNode) return;
-    setNodes((prev) => prev.filter((node) => node.id !== selectedNode?.id));
-    onClose();
-  };
-  
   return (
     <>
       {/* 🔹 Overlay */}
@@ -66,20 +59,22 @@ const Panel: React.FC<PanelProps> = ({
       >
         <h2 className="text-lg font-bold mb-4">Node Settings</h2>
 
-       {selectedNode && <PanelContent model={selectedNode?.data?.config as Model}/>}
+        {selectedNode && (
+          <PanelContent model={selectedNode?.data?.config as Model} />
+        )}
 
         <div className="flex items-center gap-2">
-        <button 
-          className="bg-black flex items-center justify-center gap-2 text-white px-4 py-2 rounded hover:bg-gray-800 transition w-full cursor-pointer"
-        >
-          <Save size={20}/> <span className="font-medium">Save settings</span>
-        </button>
-        <button
-          onClick={handleDelete}
-          className="bg-red-500 flex items-center justify-center gap-2 text-white px-4 py-2 rounded hover:bg-red-600 transition w-full cursor-pointer"
-        >
-         <BiTrash size={20}/> <span className="font-medium">Delete Node</span>
-        </button>
+          <button className="bg-black flex items-center justify-center gap-2 text-white px-4 py-2 rounded hover:bg-gray-800 transition w-full cursor-pointer">
+            <Save size={20} />{" "}
+            <span className="font-medium">Save settings</span>
+          </button>
+          <button
+            onClick={() => handleDelete(selectedNode?.id as string)}
+            className="bg-red-500 flex items-center justify-center gap-2 text-white px-4 py-2 rounded hover:bg-red-600 transition w-full cursor-pointer"
+          >
+            <BiTrash size={20} />{" "}
+            <span className="font-medium">Delete Node</span>
+          </button>
         </div>
       </div>
     </>
